@@ -1,13 +1,13 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Represents a single chess piece
  * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPiece {
     @Override
@@ -25,9 +25,9 @@ public class ChessPiece {
     }
 
     ChessGame.TeamColor color;
-    ChessPiece.PieceType Type;
+    PieceType Type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         color = pieceColor;
         Type = type;
     }
@@ -65,7 +65,7 @@ public class ChessPiece {
                     //
                 }
             }
-            else { //MOVE UPWARD, BLACK
+            else { //MOVE UPWARD, WHITE
 
             }
         }
@@ -79,11 +79,19 @@ public class ChessPiece {
             //KNIGHT
         }
         if (piece.getPieceType() == PieceType.KING) {
-            //KING
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
+            ArrayList finalanswers = new ArrayList();
+            if () {
+                ChessPosition move = new ChessPosition(1, 4);
+                finalanswers.add(move);
+            }
+
+            return finalanswers;
         }
         if (piece.getPieceType() == PieceType.QUEEN) {
             //QUEEN
         }
-        return java.util.List.of();
+        return List.of();
     }
 }

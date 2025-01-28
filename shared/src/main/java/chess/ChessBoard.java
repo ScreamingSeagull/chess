@@ -16,34 +16,55 @@ public class ChessBoard {
     ChessPiece[][] board = new ChessPiece[8][8];
 
     public void addPiece(ChessPosition position, ChessPiece piece) { //Add piece to the board, where to add and the piece to add
-        int row = ChessPosition.getRow();
-        int col = ChessPosition.getColumn();
+        int row = position.getRow();
+        int col = position.getColumn();
         board[row][col] = piece;
     }
 
     public ChessPiece getPiece(ChessPosition position) { //Get the piece at the position or null of no piece at that position
-        int row = ChessPosition.getRow();
-        int col = ChessPosition.getColumn();
+        int row = position.getRow();
+        int col = position.getColumn();
         return board[row][col];
     }
 
-    /**
-     * Sets the board to the default starting board
-     * (How the game of chess normally starts)
-     */
-    public void resetBoard() {
-//        ChessPiece pawnw = null;
-//        pawnw.Type = ChessPiece.PieceType.PAWN;
-//        pawnw.color = ChessGame.TeamColor.WHITE;
-//        for (int i = 0; i <= 8; i++) {
-//            board[1][i] = pawnw;
-//        }
-//        ChessPiece pawnb = null;
-//        pawnb.Type = ChessPiece.PieceType.PAWN;
-//        pawnb.color = ChessGame.TeamColor.BLACK;
-//        for (int i = 0; i <= 8; i++) {
-//            board[6][i] = pawnw;
-//        }
-//    }
+    public void resetBoard() { //Set board to normal setup
+        ChessPiece temp = null;
+        temp.Type = ChessPiece.PieceType.PAWN;
+        temp.color = ChessGame.TeamColor.WHITE; //WHITE ON TOP
+        for (int i = 0; i <= 8; i++) {
+            board[6][i] = temp;
+        }
+        temp.Type = ChessPiece.PieceType.ROOK;
+        board[7][0] = temp;
+        board[7][7] = temp;
+        temp.Type = ChessPiece.PieceType.KNIGHT;
+        board[7][1] = temp;
+        board[7][6] = temp;
+        temp.Type = ChessPiece.PieceType.BISHOP;
+        board[7][2] = temp;
+        board[7][5] = temp;
+        temp.Type = ChessPiece.PieceType.KING;
+        board[7][3] = temp;
+        temp.Type = ChessPiece.PieceType.QUEEN;
+        board[7][4] = temp;
+
+        temp.Type = ChessPiece.PieceType.PAWN;
+        temp.color = ChessGame.TeamColor.BLACK; //BLACK ON BOTTOM
+        for (int i = 0; i <= 8; i++) {
+            board[1][i] = temp;
+        }
+        temp.Type = ChessPiece.PieceType.ROOK;
+        board[0][0] = temp;
+        board[0][7] = temp;
+        temp.Type = ChessPiece.PieceType.KNIGHT;
+        board[0][1] = temp;
+        board[0][6] = temp;
+        temp.Type = ChessPiece.PieceType.BISHOP;
+        board[0][2] = temp;
+        board[0][5] = temp;
+        temp.Type = ChessPiece.PieceType.KING;
+        board[0][3] = temp;
+        temp.Type = ChessPiece.PieceType.QUEEN;
+        board[0][4] = temp;
     }
 }

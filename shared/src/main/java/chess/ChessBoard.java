@@ -13,28 +13,18 @@ public class ChessBoard {
     }
     ChessPosition current;
     ChessPiece selected;
-    ChessPiece[] pieces = new ChessPiece[16];
-    chess.ChessPosition[] positions = new chess.ChessPosition[16];
+    ChessPiece[][] board = new ChessPiece[8][8];
 
-    /**
-     * Adds a chess piece to the chessboard
-     *
-     * @param position where to add the piece to
-     * @param piece    the piece to add
-     */
-    public void addPiece(ChessPosition position, ChessPiece piece) {
-
+    public void addPiece(ChessPosition position, ChessPiece piece) { //Add piece to the board, where to add and the piece to add
+        int row = ChessPosition.getRow();
+        int col = ChessPosition.getColumn();
+        board[row][col] = piece;
     }
 
-    /**
-     * Gets a chess piece on the chessboard
-     *
-     * @param position The position to get the piece from
-     * @return Either the piece at the position, or null if no piece is at that
-     * position
-     */
-    public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+    public ChessPiece getPiece(ChessPosition position) { //Get the piece at the position or null of no piece at that position
+        int row = ChessPosition.getRow();
+        int col = ChessPosition.getColumn();
+        return board[row][col];
     }
 
     /**
@@ -42,6 +32,18 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+//        ChessPiece pawnw = null;
+//        pawnw.Type = ChessPiece.PieceType.PAWN;
+//        pawnw.color = ChessGame.TeamColor.WHITE;
+//        for (int i = 0; i <= 8; i++) {
+//            board[1][i] = pawnw;
+//        }
+//        ChessPiece pawnb = null;
+//        pawnb.Type = ChessPiece.PieceType.PAWN;
+//        pawnb.color = ChessGame.TeamColor.BLACK;
+//        for (int i = 0; i <= 8; i++) {
+//            board[6][i] = pawnw;
+//        }
+//    }
     }
 }

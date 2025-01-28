@@ -18,7 +18,10 @@ The application has three modules.
 
 ## Starter Code
 
-As you create your chess application you will move through specific phases of development. This starts with implementing the moves of chess and finishes with sending game moves over the network between your client and server. You will start each phase by copying course provided [starter-code](starter-code/) for that phase into the source code of the project. Do not copy a phases' starter code before you are ready to begin work on that phase.
+As you create your chess application you will move through specific phases of development.
+This starts with implementing the moves of chess and finishes with sending game moves over the network between your client and server.
+You will start each phase by copying course provided [starter-code](starter-code/) for that phase into the source code of the project.
+Do not copy a phases' starter code before you are ready to begin work on that phase.
 
 ## IntelliJ Support
 

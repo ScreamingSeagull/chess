@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -9,6 +10,20 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return color == that.color && Type == that.Type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, Type);
+    }
+
     ChessGame.TeamColor color;
     ChessPiece.PieceType Type;
 
@@ -44,7 +59,7 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         if (piece.getPieceType() == PieceType.PAWN) {
-            if (piece.color == ChessGame.TeamColor.WHITE) { //MOVE DOWNWARD, WHITE
+            if (piece.color == ChessGame.TeamColor.WHITE) { //MOVE DOWNWARD, BLACK
                 if (myPosition.getRow() >= 1)
                 {
                     //

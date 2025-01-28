@@ -9,25 +9,17 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    TeamColor current = TeamColor.valueOf("white");
 
     public ChessGame() {
-
     }
 
-    /**
-     * @return Which team's turn it is
-     */
-    public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+    public TeamColor getTeamTurn() { //Return which team's turn it is
+        return current;
     }
 
-    /**
-     * Set's which teams turn it is
-     *
-     * @param team the team whose turn it is
-     */
-    public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+    public void setTeamTurn(TeamColor team) { //Sets the team who's turn it is. Requires "team", the team who's turn it is
+        current = team;
     }
 
     /**

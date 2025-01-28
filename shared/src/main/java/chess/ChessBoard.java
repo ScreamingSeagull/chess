@@ -11,6 +11,10 @@ public class ChessBoard {
     public ChessBoard() {
         
     }
+    ChessPosition current;
+    ChessPiece selected;
+    ChessPiece[] pieces = new ChessPiece[16];
+    chess.ChessPosition[] positions = new chess.ChessPosition[16];
 
     /**
      * Adds a chess piece to the chessboard
@@ -19,7 +23,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**

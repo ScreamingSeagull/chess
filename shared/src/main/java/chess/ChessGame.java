@@ -2,27 +2,20 @@ package chess;
 
 import java.util.Collection;
 
-/**
- * For a class that can manage a chess game, making moves on a board
- * <p>
- */
 public class ChessGame {
-    TeamColor current = TeamColor.valueOf("white");
+    TeamColor current;
 
     public ChessGame() {
     }
 
-    public TeamColor getTeamTurn() { //Return which team's turn it is
+    public TeamColor getTeamTurn() {
         return current;
     }
 
-    public void setTeamTurn(TeamColor team) { //Sets the team who's turn it is. Requires "team", the team who's turn it is
+    public void setTeamTurn(TeamColor team) {
         current = team;
     }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
     public enum TeamColor {
         WHITE,
         BLACK
@@ -42,7 +35,7 @@ public class ChessGame {
     /**
      * Makes a move in a chess game
      *
-     * @param move chess move to preform
+     * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {

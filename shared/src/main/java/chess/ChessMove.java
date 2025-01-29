@@ -1,29 +1,15 @@
 package chess;
 
-import java.util.Objects;
-
+/**
+ * Represents moving a chess piece on a chessboard
+ * <p>
+ * Note: You can add to this class, but you may not alter
+ * signature of the existing methods.
+ */
 public class ChessMove {
-    ChessPosition start, end;
+    ChessPosition start;
+    ChessPosition end;
     ChessPiece.PieceType type;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && type == chessMove.type;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(start, end, type);
-    }
-    @Override
-    public String toString() {
-        return "Start: " + getStartPosition().getRow() + ", " + getStartPosition().getColumn() + " End: " + getEndPosition().getRow() + ", " + getEndPosition().getColumn() + " " + type;
-    }
-
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         start = startPosition;
@@ -31,17 +17,23 @@ public class ChessMove {
         type = promotionPiece;
     }
 
-    public ChessPosition getStartPosition() {
+    public ChessPosition getStartPosition() { //Return start position
         return start;
     }
 
-    public ChessPosition getEndPosition() {
+    public ChessPosition getEndPosition() { //Return end location
         return end;
     }
 
+    /**
+     * Gets the type of piece to promote a pawn to if pawn promotion is part of this
+     * chess move
+     *
+     * @return Type of piece to promote a pawn to, or null if no promotion
+     */
     public ChessPiece.PieceType getPromotionPiece() {
-        if (getEndPosition().getRow() == 1 || getEndPosition().getRow() == 8) {
-            return type;
+        if (type == ChessPiece.PieceType.PAWN) { //ADD CHECK HERE TO SEE IF PROMOTION IS ACCOUNTED FOR
+            return ChessPiece.PieceType.QUEEN;
         }
         return null;
     }

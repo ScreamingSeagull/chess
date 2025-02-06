@@ -30,6 +30,10 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         throw new RuntimeException("Not implemented");
+        //Take input position on the chessboard, return all moves legal to make
+        //If there is no piece at that location, return null.
+        //Only valid if it's a piece move for the piece at the input location
+        //Only valid if it does not place the King into check
     }
 
     /**

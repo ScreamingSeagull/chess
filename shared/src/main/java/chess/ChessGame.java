@@ -1,20 +1,23 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class ChessGame {
-    TeamColor current;
+    TeamColor currentColor;
     ChessBoard cboard = new ChessBoard();
 
     public ChessGame() {
+        currentColor = TeamColor.WHITE;
+        cboard.resetBoard();
     }
 
     public TeamColor getTeamTurn() {
-        return current;
+        return currentColor;
     }
 
     public void setTeamTurn(TeamColor team) {
-        current = team;
+        currentColor = team;
     }
 
     public enum TeamColor {
@@ -22,17 +25,15 @@ public class ChessGame {
         BLACK
     }
 
-    /**
-     * Gets a valid moves for a piece at the given location
-     *
-     * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
-     */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        if (cboard.getPiece(startPosition) == null) {
+            return null;
+        }
+        Collection<ChessMove> realanswers = cboard.getPiece(startPosition).pieceMoves(cboard, startPosition); //Issue about being static because it was not assigned to a piece, or the cboard.getPiece(startPosition) was not yet implemented
+
+
+        return null;
         //Take input position on the chessboard, return all moves legal to make
-        //If there is no piece at that location, return null.
         //Only valid if it's a piece move for the piece at the input location
         //Only valid if it does not place the King into check
     }
@@ -44,7 +45,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){
+            ChessPosition start = move.getStartPosition();
+            ChessPiece piece = cboard.getPiece(start);
+            Collection<ChessMove> answers = validMoves(start);
+        }
+        else{
+            throw new InvalidMoveException();
+        }
     }
 
     /**

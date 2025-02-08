@@ -46,9 +46,14 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){
-            ChessPosition start = move.getStartPosition();
-            ChessPiece piece = cboard.getPiece(start);
-            Collection<ChessMove> answers = validMoves(start);
+            Collection<ChessMove> answers = validMoves(move.getStartPosition());
+            if (answers.contains(move)) {
+                cboard.addPiece(move.getEndPosition(), cboard.getPiece(move.getStartPosition())); //Sets old piece to new location
+                cboard.addPiece(move.getStartPosition(), null); //Wipes old location as null
+            }
+            else{
+                throw new InvalidMoveException();
+            }
         }
         else{
             throw new InvalidMoveException();

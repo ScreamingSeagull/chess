@@ -19,21 +19,21 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
-//    @Override
-//    public String toString() {
-//        String answers = "";
-//        for (int i = 0; i <= 7; i++) {
-//            for (int j = 0; j <= 7; j++) {
-//                if (board[i][j] != null) {
-//                    answers = answers + board[i][j] + " ";
-//                }
-//                else {
-//                    answers = answers + "_ ";
-//                }
-//            }
-//        }
-//        return answers;
-//    }
+    @Override
+    public String toString() {
+        String answers = "";
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
+                if (board[i][j] != null) {
+                    answers = answers + board[i][j] + " ";
+                }
+                else {
+                    answers = answers + "_ ";
+                }
+            }
+        }
+        return answers;
+    }
 
     public ChessBoard() {
 

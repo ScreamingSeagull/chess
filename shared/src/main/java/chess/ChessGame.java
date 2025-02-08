@@ -56,7 +56,7 @@ public class ChessGame {
     }
 
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){
+        //if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){ //Checks who's team it is, need a way to update this unless the tests already do? Not sure, failing earlier, maybe invert?
             Collection<ChessMove> answers = validMoves(move.getStartPosition());
             if (answers.contains(move)) {
                 cboard.addPiece(move.getEndPosition(), cboard.getPiece(move.getStartPosition())); //Sets old piece to new location
@@ -65,28 +65,27 @@ public class ChessGame {
             else{
                 throw new InvalidMoveException();
             }
-        }
-        else{
-            throw new InvalidMoveException();
-        }
+        //}
+//        else{
+//            throw new InvalidMoveException();
+//        }
     }
 
-    public ChessPosition findKing(TeamColor color, ChessBoard board) { //Finds king of set color
-        ChessPosition position = new ChessPosition(1, 1);
+    public void findKing(TeamColor color, ChessBoard board, ChessPosition returnpos) { //Finds king of set color
         for (int i = 1; i <=8; i++){
-            position.changeRow(i);
+            returnpos.changeRow(i);
             for (int j = 1; j <=8; j++){
-                position.changeColumn(j);
-                if(board.getPiece(position) != null && board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(position).getTeamColor() == color) {
-                    return position;
+                returnpos.changeColumn(j);
+                if(board.getPiece(returnpos) != null && board.getPiece(returnpos).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(returnpos).getTeamColor() == color) {
+                    break;
                 }
             }
         }
-        return null; //There is no king remaining of set type
     }
 
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingpos = findKing(teamColor, cboard); //Finds king position
+        ChessPosition kingpos = new ChessPosition(1, 1);
+        findKing(teamColor, cboard, kingpos); //Finds king position
         Collection<ChessMove> kingmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos); //Finds valid moves for king, null if none
         ChessPosition current = new ChessPosition(1, 1); //Starts at 1, 1
         for (int i = 1; i <=8; i++){
@@ -105,18 +104,21 @@ public class ChessGame {
         return false;
     }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) { //Checks if in check in a separate board
-        ChessPosition kingpos = findKing(teamColor, board); //Finds king position
+        ChessPosition kingpos = new ChessPosition(1, 1);
+        findKing(teamColor, cboard, kingpos); //Finds king position
         Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos); //Finds valid moves for king, null if none
         ChessPosition current = new ChessPosition(1, 1); //Starts at 1, 1
         for (int i = 1; i <=8; i++){
             current.changeRow(i);
             for (int j = 1; j <=8; j++){
                 current.changeColumn(j); //Traverses board
-                Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current); //Collects possible attacks for pieces
-                for (int k=0; k<= possibleattack.size(); k++){ //Loops through possible attacks
-                    ChessMove attack = new ChessMove(current, kingpos, board.getPiece(current).getPieceType()); //Temporary move where the attack lands on the King
-                    if(possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
-                        return true;
+                if(board.getPiece(current) != null) {
+                    Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current); //Collects possible attacks for pieces
+                    for (int k = 0; k <= possibleattack.size(); k++) { //Loops through possible attacks
+                        ChessMove attack = new ChessMove(current, kingpos, board.getPiece(current).getPieceType()); //Temporary move where the attack lands on the King
+                        if (possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
+                            return true;
+                        }
                     }
                 }
             }
@@ -125,7 +127,8 @@ public class ChessGame {
     }
 
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingpos = findKing(teamColor, cboard);
+        ChessPosition kingpos = new ChessPosition(1, 1);
+        findKing(teamColor, cboard, kingpos); //Finds king position
         Collection<ChessMove> kingmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos);
         ChessPosition current = new ChessPosition(1, 1);
         for (int i = 1; i <=8; i++){
@@ -145,7 +148,8 @@ public class ChessGame {
     }
 
     public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) {
-        ChessPosition kingpos = findKing(teamColor, board);
+        ChessPosition kingpos = new ChessPosition(1, 1);
+        findKing(teamColor, cboard, kingpos); //Finds king position
         Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
         ChessPosition current = new ChessPosition(1, 1);
         for (int i = 1; i <=8; i++){
@@ -164,31 +168,31 @@ public class ChessGame {
         return false;
     }
 
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingpos = new ChessPosition(1, 1);
+        findKing(teamColor, cboard, kingpos); //Finds king position
+        Collection<ChessMove> kingmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos);
+        ChessPosition current = new ChessPosition(1, 1);
+        for (int i = 1; i <=8; i++){
+            current.changeRow(i);
+            for (int j = 1; j <=8; j++){
+                current.changeColumn(j);
+                Collection<ChessMove> possibleattack = cboard.getPiece(current).pieceMoves(cboard, current);
+                for (int k=0; k<= possibleattack.size(); k++){
+                    ChessMove attack = new ChessMove(current, kingpos, cboard.getPiece(current).getPieceType());
+                    if(!(possibleattack.contains(attack)) && (kingmoves == null)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
     public void setBoard(ChessBoard board) {
         cboard = board;
     }
 
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
     public ChessBoard getBoard() {
         return cboard;
     }

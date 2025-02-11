@@ -35,6 +35,6 @@ public class ChessPosition {
         Row = row;
     }
     public void changeColumn(int col) {
-        Row = col;
+        Col = col;
     }
 }

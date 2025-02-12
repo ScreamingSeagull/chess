@@ -31,17 +31,17 @@ public class ChessGame {
         if (cboard.getPiece(startPosition) == null) {
             return null;
         }
-        Collection<ChessMove> moves = cboard.getPiece(startPosition).pieceMoves(cboard, startPosition); //Issue about being static because it was not assigned to a piece, or the cboard.getPiece(startPosition) was not yet implemented
+        Collection<ChessMove> moves = cboard.getPiece(startPosition).pieceMoves(cboard, startPosition); //Issue about being static because it was not assigned to a piece, or the cboard.getPiece(startPosition) was not included
         ChessBoard tempboard = new ChessBoard();
         ChessPosition temp = new ChessPosition(1, 1);
         for (ChessMove current : moves){
-//            for (int i = 1; i <=8; i++) { //Creates a temporary reconstruction of the board to mess with to determine legality of moves
-//                temp.changeRow(i);
-//                for (int j = 1; j <=8; j++) {
-//                    temp.changeColumn(j);
-//                    tempboard.addPiece(temp, cboard.getPiece(temp));
-//                }
-//            }
+            for (int i = 1; i <=8; i++) { //Creates a temporary reconstruction of the board to mess with to determine legality of moves
+                temp.changeRow(i);
+                for (int j = 1; j <=8; j++) {
+                    temp.changeColumn(j);
+                    tempboard.addPiece(temp, cboard.getPiece(temp));
+                }
+            }
             tempboard = cboard;
             tempboard.addPiece(current.getEndPosition(), tempboard.getPiece(current.getStartPosition())); //Sets old piece to new location
             tempboard.addPiece(current.getStartPosition(), null); //Wipes old location as null
@@ -56,7 +56,7 @@ public class ChessGame {
     }
 
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){ //Checks who's team it is, need a way to update this unless the tests already do? Not sure, failing earlier, maybe invert?
+        if (cboard.getPiece(move.getStartPosition()).getTeamColor() == currentColor){ //Checks who's team it is, need a way to update this unless the tests already do? Not sure, failing earlier, maybe invert?
             Collection<ChessMove> answers = validMoves(move.getStartPosition());
             if (answers.contains(move)) {
                 cboard.addPiece(move.getEndPosition(), cboard.getPiece(move.getStartPosition())); //Sets old piece to new location
@@ -65,10 +65,12 @@ public class ChessGame {
             else{
                 throw new InvalidMoveException();
             }
-        //}
-//        else{
-//            throw new InvalidMoveException();
-//        }
+        }
+        else{
+            throw new InvalidMoveException();
+        }
+        if (currentColor == TeamColor.WHITE) currentColor = TeamColor.BLACK;
+        else currentColor = TeamColor.WHITE;
     }
 
     public ChessPosition findKing(TeamColor color, ChessBoard board) { //Finds king of set color
@@ -95,11 +97,9 @@ public class ChessGame {
                 current.changeColumn(j); //Traverses board
                 if(cboard.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = cboard.getPiece(current).pieceMoves(cboard, current); //Collects possible attacks for pieces
-                    for (int k = 0; k <= possibleattack.size(); k++) { //Loops through possible attacks
-                        ChessMove attack = new ChessMove(current, kingpos, cboard.getPiece(current).getPieceType()); //Temporary move where the attack lands on the King
-                        if (possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
-                            return true;
-                        }
+                    ChessMove attack = new ChessMove(current, kingpos, null); //Temporary move where the attack lands on the King *****************WARNING: MAY HAVE ISSUES IF PROMOTING AFTER AN ATTACK AS PIECE TYPE IS NULL, ENSURE ATTACK IS ABLE TO RECEIVE PROMOTIONS IN SEPARATE AREA
+                    if (possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
+                        return true;
                     }
                 }
             }
@@ -116,11 +116,9 @@ public class ChessGame {
                 current.changeColumn(j); //Traverses board
                 if(board.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current); //Collects possible attacks for pieces
-                    for (int k = 0; k <= possibleattack.size(); k++) { //Loops through possible attacks
-                        ChessMove attack = new ChessMove(current, kingpos, board.getPiece(current).getPieceType()); //Temporary move where the attack lands on the King
-                        if (possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
-                            return true;
-                        }
+                    ChessMove attack = new ChessMove(current, kingpos, null); //Temporary move where the attack lands on the King
+                    if (possibleattack.contains(attack) && (kingmoves != null)) { //If this attack is true and the King can still move out of the way
+                        return true;
                     }
                 }
             }
@@ -138,11 +136,9 @@ public class ChessGame {
                 current.changeColumn(j);
                 if(cboard.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = cboard.getPiece(current).pieceMoves(cboard, current);
-                    for (int k = 0; k <= possibleattack.size(); k++) {
-                        ChessMove attack = new ChessMove(current, kingpos, cboard.getPiece(current).getPieceType());
-                        if (possibleattack.contains(attack) && (kingmoves == null)) {
-                            return true;
-                        }
+                    ChessMove attack = new ChessMove(current, kingpos, null);
+                    if (possibleattack.contains(attack) && (kingmoves == null)) {
+                        return true;
                     }
                 }
             }
@@ -160,11 +156,9 @@ public class ChessGame {
                 current.changeColumn(j);
                 if(board.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
-                    for (int k = 0; k <= possibleattack.size(); k++) {
-                        ChessMove attack = new ChessMove(current, kingpos, board.getPiece(current).getPieceType());
-                        if (possibleattack.contains(attack) && (kingmoves == null)) {
-                            return true;
-                        }
+                    ChessMove attack = new ChessMove(current, kingpos, null);
+                    if (possibleattack.contains(attack) && (kingmoves == null)) {
+                        return true;
                     }
                 }
             }

@@ -36,10 +36,10 @@ public class ChessGame {
         ChessBoard tempboard = new ChessBoard();
         ChessPosition temp = new ChessPosition(1, 1);
         for (ChessMove current : moves){
-            for (int i = 1; i <=8; i++) { //Creates a temporary reconstruction of the board to mess with to determine legality of moves
-                temp.changeRow(i);
-                for (int j = 1; j <=8; j++) {
-                    temp.changeColumn(j);
+            for (int i = 0; i <8; i++) { //Creates a temporary reconstruction of the board to mess with to determine legality of moves
+                temp.changeRow(i+1);
+                for (int j = 0; j <8; j++) {
+                    temp.changeColumn(j+1);
                     tempboard.addPiece(temp, cboard.getPiece(temp));
                 }
             }
@@ -67,6 +67,9 @@ public class ChessGame {
                 if (currentColor == TeamColor.WHITE) currentColor = TeamColor.BLACK;
                 else currentColor = TeamColor.WHITE;
             }
+        }
+        else {
+            throw new InvalidMoveException();
         }
     }
 
@@ -149,12 +152,12 @@ public class ChessGame {
         return false;
     }
 
-    public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) {
+    public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) { //ERROR WITH SWITCHING BOARD WAS MANIPULATING INPUT BOARD BUT USING CLASS BOARD
         ChessPosition kingpos = findKing(teamColor, board); //Finds king position
-        Collection<ChessMove> kingmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos);
-        Collection<ChessMove> actualmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos);
+        Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
+        Collection<ChessMove> actualmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
         for (ChessMove possible : kingmoves) {
-            if (!kingMove(currentColor, possible, cboard)) {
+            if (!kingMove(currentColor, possible, board)) {
                 actualmoves.remove(possible);
             }
         }

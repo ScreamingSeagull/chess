@@ -143,7 +143,7 @@ public class ChessGame {
                 if(cboard.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = cboard.getPiece(current).pieceMoves(cboard, current);
                     ChessMove attack = new ChessMove(current, kingpos, null);
-                    if (possibleattack.contains(attack) && kingmoves.isEmpty()) {
+                    if (possibleattack.contains(attack) && actualmoves.isEmpty()) {
                         return true;
                     }
                 }
@@ -169,7 +169,7 @@ public class ChessGame {
                 if(board.getPiece(current) != null) {
                     Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
                     ChessMove attack = new ChessMove(current, kingpos, null);
-                    if (possibleattack.contains(attack) && kingmoves.isEmpty()) {
+                    if (possibleattack.contains(attack) && actualmoves.isEmpty()) {
                         return true;
                     }
                 }
@@ -179,7 +179,15 @@ public class ChessGame {
     }
 
     public boolean kingMove(TeamColor color, ChessMove move, ChessBoard board) { //RETURNS FALSE IF NOT ABLE TO MOVE INTO SET SPACE
-        ChessBoard tempboard = board;
+        ChessBoard tempboard = new ChessBoard();
+        ChessPosition temp = new ChessPosition(1, 1);
+        for (int i = 0; i < 8; i++) { //Creates a temporary reconstruction of the board to mess with to determine legality of moves
+            temp.changeRow(i + 1);
+            for (int j = 0; j < 8; j++) {
+                temp.changeColumn(j + 1);
+                tempboard.addPiece(temp, board.getPiece(temp));
+            }
+        }
         tempboard.addPiece(move.getEndPosition(), tempboard.getPiece(move.getStartPosition()));
         tempboard.addPiece(move.getStartPosition(), null);
         ChessPosition current = new ChessPosition(1, 1);

@@ -102,7 +102,6 @@ public class ChessGame {
     }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) { //Checks if in check in a separate board
         ChessPosition kingpos = findKing(teamColor, board); //Finds king position
-        Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos); //Finds valid moves for king, null if none
         ChessPosition current = new ChessPosition(1, 1); //Starts at 1, 1
         for (int i = 1; i <=8; i++){
             current.changeRow(i);
@@ -128,14 +127,15 @@ public class ChessGame {
 
     public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) { //ERROR WITH SWITCHING BOARD WAS MANIPULATING INPUT BOARD BUT USING CLASS BOARD
         ChessPosition kingpos = findKing(teamColor, board); //Finds king position
-        Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
+        if (kingpos == null) return true;
+        Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos); //If move to kill king is legal, it does the move and then checks for this, thus allowing a null king location
         Collection<ChessMove> actualmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
         for (ChessMove possible : kingmoves) {
             if (!kingMove(currentColor, possible, board)) {
                 actualmoves.remove(possible);
             }
         }
-        if (isInCheck(teamColor, board) && actualmoves.isEmpty()) {
+        if (isInCheck(teamColor, board) && actualmoves.isEmpty()) { //THIS PART NEEDS TO CLAIM THE ATTACKING PIECE
             return true;
         }
         return false;
@@ -165,25 +165,21 @@ public class ChessGame {
     }
 
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition kingpos = findKing(teamColor, cboard); //Finds king position
-        Collection<ChessMove> kingmoves = cboard.getPiece(kingpos).pieceMoves(cboard, kingpos);
-        ChessPosition current = new ChessPosition(1, 1);
-        for (int i = 1; i <=8; i++){
+        if (isInCheckmate(teamColor)) return false;
+        ChessPosition current = new ChessPosition(1, 1); //Starts at 1, 1
+        for (int i = 1; i <= 8; i++) {
             current.changeRow(i);
-            for (int j = 1; j <=8; j++){
-                current.changeColumn(j);
-                if(cboard.getPiece(current) != null) {
-                    Collection<ChessMove> possibleattack = cboard.getPiece(current).pieceMoves(cboard, current);
-                    for (int k = 0; k <= possibleattack.size(); k++) {
-                        ChessMove attack = new ChessMove(current, kingpos, cboard.getPiece(current).getPieceType());
-                        if (!(possibleattack.contains(attack))) { //************************************************************Set team has no valid moves, not just king
-                            return true;
-                        }
-                    }
+            for (int j = 1; j <= 8; j++) {
+                current.changeColumn(j); //Traverses board
+                if (cboard.getPiece(current) != null && cboard.getPiece(current).getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(current);
+                    if (moves.isEmpty()) {
+                        //Not able to return
+                    } else return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     public void setBoard(ChessBoard board) {

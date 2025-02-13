@@ -42,6 +42,7 @@ public class ChessGame {
         if (cboard.getPiece(startPosition) == null) {
             return null;
         }
+        TeamColor color = cboard.getPiece(startPosition).getTeamColor();
         Collection<ChessMove> moves = cboard.getPiece(startPosition).pieceMoves(cboard, startPosition); //Issue about being static because it was not assigned to a piece, or the cboard.getPiece(startPosition) was not included
         Collection<ChessMove> answers = cboard.getPiece(startPosition).pieceMoves(cboard, startPosition); //Setting answers equal to moves results in them just pointing to each other? Breaks modification of collection while iterating through it below
         ChessBoard tempboard = new ChessBoard();
@@ -49,7 +50,7 @@ public class ChessGame {
             copyboard(cboard, tempboard);
             tempboard.addPiece(current.getEndPosition(), tempboard.getPiece(current.getStartPosition())); //Sets old piece to new location
             tempboard.addPiece(current.getStartPosition(), null); //Wipes old location as null
-            if (isInCheck(currentColor, tempboard) || isInCheckmate(currentColor, tempboard)){
+            if (isInCheck(color, tempboard) || isInCheckmate(color, tempboard)){
                 answers.remove(current);
             }
         }
@@ -71,8 +72,12 @@ public class ChessGame {
                 if (move.getPromotionPiece() != null){
                     cboard.getPiece(move.getEndPosition()).setPieceType(move.getPromotionPiece());
                 }
-                if (currentColor == TeamColor.WHITE) currentColor = TeamColor.BLACK;
-                else currentColor = TeamColor.WHITE;
+                if (currentColor == TeamColor.WHITE){
+                    currentColor = TeamColor.BLACK;
+                }
+                else{
+                    currentColor = TeamColor.WHITE;
+                }
             }
             else {
                 throw new InvalidMoveException();
@@ -81,6 +86,11 @@ public class ChessGame {
         else {
             throw new InvalidMoveException();
         }
+    }
+
+    public void doMove(ChessMove move, ChessBoard board) {
+        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition())); //Sets old piece to new location
+        board.addPiece(move.getStartPosition(), null); //Wipes old location as null
     }
 
     public ChessPosition findKing(TeamColor color, ChessBoard board) { //Finds king of set color
@@ -124,19 +134,56 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         return isInCheckmate(teamColor, cboard);
     }
-
     public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) { //ERROR WITH SWITCHING BOARD WAS MANIPULATING INPUT BOARD BUT USING CLASS BOARD
         ChessPosition kingpos = findKing(teamColor, board); //Finds king position
         if (kingpos == null) return true;
         Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos); //If move to kill king is legal, it does the move and then checks for this, thus allowing a null king location
         Collection<ChessMove> actualmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
         for (ChessMove possible : kingmoves) {
-            if (!kingMove(currentColor, possible, board)) {
+            if (!kingMove(teamColor, possible, board)) {
                 actualmoves.remove(possible);
             }
         }
-        if (isInCheck(teamColor, board) && actualmoves.isEmpty()) { //THIS PART NEEDS TO CLAIM THE ATTACKING PIECE
-            return true;
+        if (isInCheck(teamColor, board) && actualmoves.isEmpty()) { //IF IN CHECK
+            ChessPosition attacker = new ChessPosition(0, 0); //ATTACKER INTENTIONALLY USING OUT OF BOUNDS INDEXES, SHOULD CHANGE AUTOMATICALLY IF IN CHECK
+            ChessPosition current = new ChessPosition(1, 1);
+            for (int i = 1; i <=8; i++){
+                current.changeRow(i);
+                for (int j = 1; j <=8; j++){
+                    current.changeColumn(j); //Traverses board
+                    if(board.getPiece(current) != null) {
+                        Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
+                        for (ChessMove attack : possibleattack) {
+                            if (attack.getEndPosition().equals(kingpos)) {
+                                if ((attacker.getRow() > 0 && attacker.getColumn() > 0) && (attacker.getRow() != attack.getStartPosition().getRow() && attacker.getColumn() != attack.getStartPosition().getColumn())) return true;
+                                attacker.changeRow(attack.getStartPosition().getRow());
+                                attacker.changeColumn(attack.getStartPosition().getColumn());
+                            }
+                        }
+                    }
+                }
+            }
+            ChessBoard tempboard = new ChessBoard();
+            copyboard(board, tempboard);
+            for (int i = 1; i <=8; i++){
+                current.changeRow(i);
+                for (int j = 1; j <=8; j++){
+                    current.changeColumn(j);
+                    if(tempboard.getPiece(current) != null && tempboard.getPiece(current).getTeamColor() == teamColor) {
+                        Collection<ChessMove> defense = tempboard.getPiece(current).pieceMoves(tempboard, current);
+                        for (ChessMove attack : defense) {
+                            if (attack.getEndPosition().equals(attacker)) {
+                                ChessBoard temp2 = new ChessBoard();
+                                copyboard(tempboard, temp2);
+                                doMove(attack, temp2);
+                                if (isInCheck(teamColor, temp2)) return true;
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true; //Misplaced this return true statement way too far up, wasn't cycling through everything
         }
         return false;
     }

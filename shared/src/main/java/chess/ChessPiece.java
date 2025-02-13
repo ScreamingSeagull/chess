@@ -45,6 +45,10 @@ public class ChessPiece {
         return Type;
     }
 
+    public void setPieceType(ChessPiece.PieceType promotion) {
+        Type = promotion;
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();

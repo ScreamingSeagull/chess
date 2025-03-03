@@ -1,15 +1,19 @@
 package server;
 import java.util.Map;
 import java.util.UUID;
-
 import org.eclipse.jetty.server.Authentication;
 import spark.*;
 import dataaccess.*;
 import com.google.gson.Gson;
 import service.*;
+import model.request.*;
+import model.result.*;
 
 public class Server {
     private UserService userService = new UserService();
+    private AppService appService = new AppService();
+    private AuthService authService = new AuthService();
+    private GameService gameService = new GameService();
     public int run(int desiredPort) {
 
         Spark.port(desiredPort);
@@ -32,7 +36,7 @@ public class Server {
     }
     private Object clearApp(Request req, Response res) {
         appService.destroy();
-        res.status(200); //Throw dataaccessexception in appservice.destroy
+        res.status(200); //Throw dataaccessexception in Service
         res.body("");
         return "";
     }
@@ -44,17 +48,21 @@ public class Server {
         return "";
     }
     private Object login(Request req, Response res) {
+        LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
+        userService.login(loginRequest);
         res.status(200); //Throw dataaccessexception in Service
         res.body("");
         return "";
 
     }
     private Object logout(Request req, Response res) {
+        userService.logout();
         res.status(200); //Throw dataaccessexception in Service
         res.body("");
         return "";
     }
     private Object listGames(Request req, Response res) {
+        gameService.listGames();
         res.status(200); //Throw dataaccessexception in Service
         res.body("");
         return "";

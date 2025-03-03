@@ -1,17 +1,22 @@
 package dataaccess;
 import model.GameData;
+import model.result.*;
 
 public class GameDAO {
-    void createGame() throws DataAccessException {
+    public void clearG() throws DataAccessException {
+        //returns 200 if all good
+        //returns 500 if description
+    }
+    public CreateGameResult createGame() throws DataAccessException {
 
     }
-    void getGame(int id) throws DataAccessException {
+    public GameData getGame(int id) throws DataAccessException {
 
     }
-    void listGames() throws DataAccessException {
+    public GameData[] listGames() throws DataAccessException {
 
     }
-    void updateGame(String newgame) throws DataAccessException {
+    public void updateGame(String newgame) throws DataAccessException {
 
     }
 }

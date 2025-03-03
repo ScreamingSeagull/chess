@@ -35,7 +35,7 @@ public class Server {
         return Spark.port();
     }
     private Object clearApp(Request req, Response res) throws DataAccessException {
-        appService.clear();
+        appService.deleteall();
         res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
@@ -61,8 +61,8 @@ public class Server {
         res.body("");
         return "";
     }
-    private Object listGames(Request req, Response res) {
-        gameService.listGames();
+    private Object listGames(Request req, Response res) throws DataAccessException {
+        gameService.listGames(req.headers("Authorization"));
         res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
@@ -76,7 +76,7 @@ public class Server {
     }
     private Object joinGame(Request req, Response res) throws DataAccessException {
         JoinGameRequest joinRequest = new Gson().fromJson(req.body(), JoinGameRequest.class);
-        gameService.joinGame(joinRequest);
+        gameService.joinGame(joinRequest, req.headers("Authorization"));
         res.status(200); //Throw exceptions in Service
         res.body("");
         return "";

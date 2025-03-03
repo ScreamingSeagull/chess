@@ -34,50 +34,50 @@ public class Server {
         Spark.awaitInitialization();
         return Spark.port();
     }
-    private Object clearApp(Request req, Response res) {
+    private Object clearApp(Request req, Response res) throws DataAccessException {
         appService.clear();
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }
-    private Object register(Request req, Response res) {
+    private Object register(Request req, Response res) throws DataAccessException {
         RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class); //convert from req to register request
         userService.register(registerRequest);
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }
-    private Object login(Request req, Response res) {
+    private Object login(Request req, Response res) throws DataAccessException {
         LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         userService.login(loginRequest);
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
 
     }
     private Object logout(Request req, Response res) {
         userService.logout();
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }
     private Object listGames(Request req, Response res) {
         gameService.listGames();
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }
-    private Object createGame(Request req, Response res) {
+    private Object createGame(Request req, Response res) throws DataAccessException {
         CreateGameRequest createGameRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
         gameService.createGame(createGameRequest);
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }
-    private Object joinGame(Request req, Response res) {
+    private Object joinGame(Request req, Response res) throws DataAccessException {
         JoinGameRequest joinRequest = new Gson().fromJson(req.body(), JoinGameRequest.class);
         gameService.joinGame(joinRequest);
-        res.status(200); //Throw dataaccessexception in Service
+        res.status(200); //Throw exceptions in Service
         res.body("");
         return "";
     }

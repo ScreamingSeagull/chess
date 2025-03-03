@@ -6,10 +6,10 @@ public class UserDAO {
         //returns 200 if all good
         //returns 500 if description
     }
-    void createUser(UserData u) throws DataAccessException {
+    public void createUser(UserData u) throws DataAccessException {
 
     }
-    String getUser(String username) throws DataAccessException {
-        return username; //returns authtoken? check network map
+    public UserData getUser(String username) throws DataAccessException {
+        return userdata; //or return null if none found
     }
 }

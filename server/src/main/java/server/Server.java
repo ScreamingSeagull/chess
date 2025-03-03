@@ -1,10 +1,17 @@
 package server;
+import java.util.Map;
 import java.util.UUID;
+
+import org.eclipse.jetty.server.Authentication;
 import spark.*;
+import dataaccess.*;
+import com.google.gson.Gson;
+import service.*;
 
 public class Server {
-    //Content that is constant
+    private UserService userService = new UserService();
     public int run(int desiredPort) {
+
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -15,6 +22,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+        Spark.exception(DataAccessException.class, this::errorHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -23,24 +31,33 @@ public class Server {
         return Spark.port();
     }
     private Object clearApp(Request req, Response res) {
-        return 200;
-        //returns 500 if description
+        appService.destroy();
+        res.status(200); //Throw dataaccessexception in appservice.destroy
+        res.body("");
+        return "";
     }
     private Object register(Request req, Response res) {
-        return 200; //+ username and authtoken
-        //Returns 400 if bad request, returns 304 if already a token, returns 500 if description
+        RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class); //convert from req to register request
+        userService.register(registerRequest);
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
     }
     private Object login(Request req, Response res) {
-        return 200; //+username and authtoken
-        //Returns 401 if unauthorized, returns 500 if description
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
+
     }
     private Object logout(Request req, Response res) {
-        return 200;
-        //Returns 401 if unauthorized, returns 500 if description
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
     }
     private Object listGames(Request req, Response res) {
-        return 200; //+ games list
-        //Returns 401 if unauthorized, returns 500 if description
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
     }
     private Object createGame(Request req, Response res) {
         return 200; //+game ID

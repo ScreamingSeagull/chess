@@ -3,12 +3,13 @@ import model.UserData;
 
 public class UserDAO {
     void clear() throws DataAccessException {
-
+        //returns 200 if all good
+        //returns 500 if description
     }
     void createUser(UserData u) throws DataAccessException {
 
     }
-    void getUser(String username) throws DataAccessException {
-
+    String getUser(String username) throws DataAccessException {
+        return username;
     }
 }

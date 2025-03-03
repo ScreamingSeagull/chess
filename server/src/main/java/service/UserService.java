@@ -29,13 +29,17 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         UserData data = DAO.getUser(loginRequest.username());
         if(data.password() != loginRequest.username()){
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: unauthorized"); //401=unauthorized
         }
-
-        //returns 500 if description
+        AuthData authData = new AuthData(generateToken(), loginRequest.username());
+        DAOA.createAuth(authData);
+        return new LoginResult(authData.username(), authData.authToken());
+        //500=description of error
     }
-    public void logout() {
-        //return 200;
+    public void logout(String authToken) throws DataAccessException {
+        AuthData authData = DAOA.getAuth(authToken);
+        if (authData != null){DAOA.deleteAuth(authData);}
+        else {throw new ServiceException(401, "Error: unauthorized");} //unauthorized exception can occur if authdata is not found
         //Returns 401 if unauthorized, returns 500 if description
     }
 }

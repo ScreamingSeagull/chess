@@ -8,7 +8,7 @@ public class AuthDAO {
     public AuthData getAuth(String authToken) throws DataAccessException {
 
     }
-    public void deleteAuth() throws DataAccessException {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
 
     }
 }

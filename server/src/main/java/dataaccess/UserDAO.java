@@ -10,6 +10,6 @@ public class UserDAO {
 
     }
     public UserData getUser(String username) throws DataAccessException {
-        return userdata; //or return null if none found
+
     }
 }

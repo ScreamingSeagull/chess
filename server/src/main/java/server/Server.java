@@ -55,8 +55,8 @@ public class Server {
         return "";
 
     }
-    private Object logout(Request req, Response res) {
-        userService.logout();
+    private Object logout(Request req, Response res) throws DataAccessException {
+        userService.logout(req.headers("Authorization"));
         res.status(200); //Throw exceptions in Service
         res.body("");
         return "";

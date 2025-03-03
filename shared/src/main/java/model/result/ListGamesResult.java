@@ -1,6 +1,8 @@
 package model.result;
 import model.GameData;
 
-public record ListGamesResult(GameData[] games) {
+import java.util.Collection;
+
+public record ListGamesResult(Collection<GameData> games) {
     //To string method would be good for printing out
 }

@@ -7,6 +7,8 @@ import model.GameData;
 import model.result.*;
 import model.request.*;
 
+import java.util.Collection;
+
 public class GameService {
     private GameDAO DAOG = new GameDAO();
     private AuthDAO DAOA = new AuthDAO();
@@ -15,7 +17,7 @@ public class GameService {
         if (authData == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        GameData[] games = DAOG.listGames();
+        Collection<GameData> games = DAOG.listGames();
         return new ListGamesResult(games);
         //returns 500 if description
     }
@@ -24,7 +26,7 @@ public class GameService {
         if (authData == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        return DAOG.createGame();
+        return DAOG.createGame(createGameRequest.authToken());
         //returns 500 if description
     }
     public void joinGame(JoinGameRequest joinRequest, String authToken) throws DataAccessException {

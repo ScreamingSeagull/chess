@@ -10,6 +10,6 @@ public class UserDAO {
 
     }
     String getUser(String username) throws DataAccessException {
-        return username;
+        return username; //returns authtoken? check network map
     }
 }

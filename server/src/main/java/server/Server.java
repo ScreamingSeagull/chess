@@ -35,7 +35,7 @@ public class Server {
         return Spark.port();
     }
     private Object clearApp(Request req, Response res) {
-        appService.destroy();
+        appService.clear();
         res.status(200); //Throw dataaccessexception in Service
         res.body("");
         return "";
@@ -68,12 +68,18 @@ public class Server {
         return "";
     }
     private Object createGame(Request req, Response res) {
-        return 200; //+game ID
-        //Returns 400 if bad request, 401 if unauthorized, returns 500 if description
+        CreateGameRequest createGameRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
+        gameService.createGame(createGameRequest);
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
     }
     private Object joinGame(Request req, Response res) {
-        return 200;
-        //Returns 401 if unauthorized, 403 if already taken, returns 500 if description
+        JoinGameRequest joinRequest = new Gson().fromJson(req.body(), JoinGameRequest.class);
+        gameService.joinGame(joinRequest);
+        res.status(200); //Throw dataaccessexception in Service
+        res.body("");
+        return "";
     }
     public static String generateToken() {
         return UUID.randomUUID().toString();

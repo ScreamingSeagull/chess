@@ -1,7 +1,7 @@
 package service;
 
 public class AppService {
-    public void destroy() {
+    public void clear() {
         //return 200;
     }
 }

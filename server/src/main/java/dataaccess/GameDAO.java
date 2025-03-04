@@ -11,17 +11,12 @@ import java.util.HashMap;
 
 public class GameDAO {
     final private HashMap<Integer, GameData> games = new HashMap<>();
-    private AuthDAO DAOA = new AuthDAO();
 
     public void clearG() throws DataAccessException {
         games.clear();
         //returns 500 if description
     }
     public CreateGameResult createGame(String authToken) throws DataAccessException {
-        AuthData authData = DAOA.getAuth(authToken);
-        if (authData == null) {
-            throw new ServiceException(401, "Error: unauthorized");
-        }
         ChessGame newGame = new ChessGame();
         int ID = games.size();
         GameData game = new GameData(ID, null, null, null, newGame);

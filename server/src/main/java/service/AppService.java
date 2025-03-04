@@ -5,12 +5,19 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
 public class AppService {
-    private UserDAO DAO = new UserDAO();
-    private AuthDAO DAOA = new AuthDAO();
-    private GameDAO DAOG = new GameDAO();
+    private UserDAO UDAO = new UserDAO();
+    private AuthDAO ADAO = new AuthDAO();
+    private GameDAO GDAO = new GameDAO();
+
+    public AppService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
+        UDAO = udao;
+        ADAO = adao;
+        GDAO = gdao;
+    }
+
     public void deleteall() throws DataAccessException {
-        DAO.clearU();
-        DAOA.clearA();
-        DAOG.clearG();
+        UDAO.clearU();
+        ADAO.clearA();
+        GDAO.clearG();
     }
 }

@@ -2,6 +2,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import model.result.*;
@@ -10,31 +11,39 @@ import model.request.*;
 import java.util.Collection;
 
 public class GameService {
-    private GameDAO DAOG = new GameDAO();
-    private AuthDAO DAOA = new AuthDAO();
+    private UserDAO UDAO = new UserDAO();
+    private AuthDAO ADAO = new AuthDAO();
+    private GameDAO GDAO = new GameDAO();
+
+    public GameService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
+        UDAO = udao;
+        ADAO = adao;
+        GDAO = gdao;
+    }
+
     public ListGamesResult listGames(String authToken) throws DataAccessException {
-        AuthData authData = DAOA.getAuth(authToken);
+        AuthData authData = ADAO.getAuth(authToken);
         if (authData == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        Collection<GameData> games = DAOG.listGames();
+        Collection<GameData> games = GDAO.listGames();
         return new ListGamesResult(games);
         //returns 500 if description
     }
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
-        AuthData authData = DAOA.getAuth(createGameRequest.authToken());
+        AuthData authData = ADAO.getAuth(createGameRequest.authToken());
         if (authData == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        return DAOG.createGame(createGameRequest.authToken());
+        return GDAO.createGame(createGameRequest.authToken());
         //returns 500 if description
     }
     public void joinGame(JoinGameRequest joinRequest, String authToken) throws DataAccessException {
-        GameData gameData = DAOG.getGame(joinRequest.ID());
+        GameData gameData = GDAO.getGame(joinRequest.ID());
         if (gameData == null) {
             throw new DataAccessException("Error: bad request");
         }
-        AuthData authData = DAOA.getAuth(authToken);
+        AuthData authData = ADAO.getAuth(authToken);
         if (authData == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }

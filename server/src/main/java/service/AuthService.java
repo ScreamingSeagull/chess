@@ -15,7 +15,7 @@ public class AuthService {
         ADAO = adao;
         GDAO = gdao;
     }
-
+//No longer needed, easier to do elsewhere.
 //    public boolean isAuthed(String authToken) throws DataAccessException {
 //        AuthData authData = DAOA.getAuth(authToken);
 //        if (authData != null) {return true;}

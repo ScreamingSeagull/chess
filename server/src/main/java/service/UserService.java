@@ -29,6 +29,9 @@ public class UserService {
         if (registerRequest.username()==null || registerRequest.password() == null || registerRequest.email()==null) {
             throw new ServiceException(400, "Error: bad request");
         }
+        if (registerRequest.username().isEmpty() || registerRequest.password().isEmpty() || registerRequest.email().isEmpty()) {
+            throw new ServiceException(400, "Error: bad request");
+        }
         AuthData authData = new AuthData(generateToken(), registerRequest.username());
         ADAO.createAuth(authData);
         return UDAO.createUser((new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email())), authData);

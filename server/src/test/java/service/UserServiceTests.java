@@ -1,10 +1,11 @@
 package service;
-
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import model.result.RegisterResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import passoff.exception.TestException;
@@ -22,6 +23,7 @@ public class UserServiceTests {
     @Test
     @DisplayName("Good Register")
     public void goodRegister() throws DataAccessException {
+        appService.deleteall();
         RegisterRequest newRequest = new RegisterRequest("NewUser", "UserPassword", "Email@job.com");
         try {
             userService.register(newRequest);
@@ -32,19 +34,68 @@ public class UserServiceTests {
     @Test
     @DisplayName("Bad Register")
     public void badRegister() throws DataAccessException {
+        appService.deleteall();
         RegisterRequest badRequest = new RegisterRequest("NewUser", "", "Email@job.com");
         try {
-            assertThrows(ServiceException.class, () ->userService.register(badRequest));
+            assertThrows(ServiceException.class, () ->userService.register(badRequest), "Did not throw ServiceException Error");
         } catch (Exception falseRegister) {
             throw new TestException("Registered, should not have been able to");
         }
     }
 
-    //Positive Login
+    @Test
+    @DisplayName("Good Login")
+    public void goodLogin() throws DataAccessException {
+        appService.deleteall();
+        RegisterRequest newRequest = new RegisterRequest("NewUser", "UserPassword", "Email@job.com");
+        userService.register(newRequest);
+        LoginRequest loginRequest = new LoginRequest(newRequest.username(), newRequest.password());
+        try {
+            userService.login(loginRequest);
+        } catch (Exception cannotRegister) {
+            throw new TestException("Cannot login");
+        }
+    }
+    @Test
+    @DisplayName("Bad Login")
+    public void badLogin() throws DataAccessException {
+        appService.deleteall();
+        RegisterRequest newRequest = new RegisterRequest("NewUser", "Standard password", "Email@job.com");
+        userService.register(newRequest);
+        LoginRequest loginRequest = new LoginRequest(newRequest.username(), "Nonstandard password");
+        try {
+            assertThrows(ServiceException.class, () ->userService.login(loginRequest), "Did not throw ServiceException Error");
+        } catch (Exception falseRegister) {
+            throw new TestException("Logged in, should not have been able to");
+        }
+    }
 
-    //Negative Login
-
-    //Positive Logout
-
-    //Negative Logout
+    @Test
+    @DisplayName("Good Logout")
+    public void goodLogout() throws DataAccessException {
+        appService.deleteall();
+        RegisterRequest newRequest = new RegisterRequest("NewUser", "UserPassword", "Email@job.com");
+        RegisterResult result = userService.register(newRequest);
+        LoginRequest loginRequest = new LoginRequest(newRequest.username(), newRequest.password());
+        userService.login(loginRequest);
+        try {
+            userService.logout(result.authToken());
+        } catch (Exception cannotRegister) {
+            throw new TestException("Cannot logout");
+        }
+    }
+    @Test
+    @DisplayName("Bad Logout")
+    public void badLogout() throws DataAccessException {
+        appService.deleteall();
+        RegisterRequest newRequest = new RegisterRequest("NewUser", "Standard password", "Email@job.com");
+        userService.register(newRequest);
+        LoginRequest loginRequest = new LoginRequest(newRequest.username(), newRequest.password());
+        userService.login(loginRequest);
+        try {
+            assertThrows(ServiceException.class, () ->userService.logout(""), "Did not throw ServiceException Error");
+        } catch (Exception falseRegister) {
+            throw new TestException("Logged out, should not have been able to");
+        }
+    }
 }

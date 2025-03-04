@@ -12,14 +12,14 @@ import java.util.HashMap;
 public class GameDAO {
     final private HashMap<Integer, GameData> games = new HashMap<>();
 
-    public void clearG() throws DataAccessException {
+    public void clearG() {
         games.clear();
         //returns 500 if description
     }
-    public CreateGameResult createGame(String authToken) throws DataAccessException {
+    public CreateGameResult createGame(String name) throws DataAccessException {
         ChessGame newGame = new ChessGame();
-        int ID = games.size();
-        GameData game = new GameData(ID, null, null, null, newGame);
+        int ID = games.size() + 1;
+        GameData game = new GameData(ID, null, null, name, newGame);
         games.put(ID, game);
         return new CreateGameResult(ID);
     }
@@ -29,7 +29,7 @@ public class GameDAO {
     public Collection<GameData> listGames() throws DataAccessException {
         return games.values();
     }
-    public void updateGame(String newgame) throws DataAccessException {
-//perhaps use serialization
+    public void updateGame(int ID, GameData newGame) throws DataAccessException {
+        games.replace(ID, newGame);
     }
 }

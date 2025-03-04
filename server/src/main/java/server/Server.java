@@ -30,14 +30,15 @@ public class Server {
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.exception(DataAccessException.class, this::errorHandler);
+        Spark.exception(ServiceException.class, this::serviceErrorHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
+//        Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
     }
-    private Object clearApp(Request req, Response res) throws DataAccessException {
+    private Object clearApp(Request req, Response res)  {
         appService.deleteall();
         res.status(200); //Throw exceptions in Service
         res.body("");
@@ -72,8 +73,8 @@ public class Server {
     }
     private Object createGame(Request req, Response res) throws DataAccessException {
         CreateGameRequest createGameRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
-        String body = new Gson().toJson(gameService.createGame(createGameRequest));
-        res.status(200); //Throw exceptions in Service
+        String body = new Gson().toJson(gameService.createGame(createGameRequest, req.headers("Authorization")));
+        res.status(200);
         res.body(body);
         return body;
 
@@ -85,9 +86,6 @@ public class Server {
         res.body("");
         return "";
     }
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 
     public Object errorHandler(Exception e, Request req, Response res) {
         var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
@@ -96,7 +94,13 @@ public class Server {
         res.body(body);
         return body;
     }
-
+    public Object serviceErrorHandler(ServiceException e, Request req, Response res) {
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
+        res.type("application/json");
+        res.status(e.getCode());
+        res.body(body);
+        return body;
+    }
     public void stop() {
         Spark.stop();
         Spark.awaitStop();

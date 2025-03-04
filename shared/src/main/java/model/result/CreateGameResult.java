@@ -1,5 +1,5 @@
 package model.result;
 
-public record CreateGameResult(int ID) {
-    int getID() {return ID;}
+public record CreateGameResult(int gameID) {
+    int getID() {return gameID;}
 }

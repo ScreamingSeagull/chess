@@ -10,20 +10,15 @@ public class UserDAO {
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
-    final private HashMap<Integer, UserData> users = new HashMap<>(); //TEMPORARY DATABASE FOR PHASE 3
-    public void clearU() throws DataAccessException {
+    final private HashMap<String, UserData> users = new HashMap<>(); //TEMPORARY DATABASE FOR PHASE 3
+    public void clearU() {
         users.clear();
     }
     public RegisterResult createUser(UserData u, AuthData a) throws DataAccessException {
-        users.put(users.size(), u);
+        users.put(u.username(), u);
         return new RegisterResult(a.authToken(), u.username()); //GET THIS WORKING
     }
     public UserData getUser(String username) throws DataAccessException {
-        for (int i = 0; i<users.size(); i++) {
-            if(users.get(i).username().equals(username)) {
-                return users.get(i);
-            }
-        }
-        return null;
+        return users.get(username);
     }
 }

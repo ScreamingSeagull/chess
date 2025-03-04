@@ -26,22 +26,27 @@ public class UserService {
         if (udata != null) {
             throw new ServiceException(403, "Error: already taken"); //403=already taken
         }
+        if (registerRequest.username()==null || registerRequest.password() == null || registerRequest.email()==null) {
+            throw new ServiceException(400, "Error: bad request");
+        }
         AuthData authData = new AuthData(generateToken(), registerRequest.username());
         ADAO.createAuth(authData);
         return UDAO.createUser((new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email())), authData);
         //500=description of error
     }
-    public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, ServiceException {
         UserData data = UDAO.getUser(loginRequest.username());
         if (data == null) {
-            throw new ServiceException(403, "Error: unauthorized");
+            throw new ServiceException(401, "Error: unauthorized");
         }
         if (data.password().equals(loginRequest.password())){
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
             ADAO.createAuth(authData);
             return new LoginResult(authData.authToken(), authData.username());
         }
-        throw new ServiceException(401, "Error: unauthorized"); //401=unauthorized
+        else {
+            throw new ServiceException(401, "Error: unauthorized"); //401=unauthorized
+        }
         //500=description of error
     }
     public void logout(String authToken) throws DataAccessException {

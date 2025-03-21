@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import passoff.exception.TestException;
 
 public class AppServiceTests {
-    private static final AuthDAO aDAO = new AuthDAO();
-    private static final UserDAO uDAO = new UserDAO();
-    private static final GameDAO gDAO = new GameDAO();
+    private static final MemoryAuthDAO aDAO = new MemoryAuthDAO();
+    private static final MemoryUserDAO uDAO = new MemoryUserDAO();
+    private static final MemoryGameDAO gDAO = new MemoryGameDAO();
 
     private static final UserService userService = new UserService(uDAO, aDAO, gDAO);
     private static final AppService appService = new AppService(uDAO, aDAO, gDAO);

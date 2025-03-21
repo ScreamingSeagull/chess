@@ -1,8 +1,6 @@
 package service;
-import dataaccess.AuthDAO;
+import dataaccess.*;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import model.result.*;
@@ -11,9 +9,9 @@ import model.request.*;
 import java.util.Collection;
 
 public class GameService {
-    private UserDAO UDAO = new UserDAO();
-    private AuthDAO ADAO = new AuthDAO();
-    private GameDAO GDAO = new GameDAO();
+    private UserDAO UDAO;
+    private AuthDAO ADAO;
+    private GameDAO GDAO;
 
     public GameService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
         UDAO = udao;

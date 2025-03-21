@@ -1,23 +1,22 @@
 package server;
 import java.util.Map;
-import java.util.UUID;
-import org.eclipse.jetty.server.Authentication;
+
 import spark.*;
 import dataaccess.*;
 import com.google.gson.Gson;
 import service.*;
 import model.request.*;
-import model.result.*;
 
 public class Server {
-    private UserDAO UDAO = new UserDAO();
-    private AuthDAO ADAO = new AuthDAO();
-    private GameDAO GDAO = new GameDAO();
+    private UserDAO UDAO = new SQLUserDAO(); //CHANGE TO SQLUSERDAO ***************************************************************
+    private AuthDAO ADAO = new SQLAuthDAO();
+    private GameDAO GDAO = new SQLGameDAO();
     private UserService userService = new UserService(UDAO, ADAO, GDAO);
     private AppService appService = new AppService(UDAO, ADAO, GDAO);
     private AuthService authService = new AuthService(UDAO, ADAO, GDAO);
     private GameService gameService = new GameService(UDAO, ADAO, GDAO);
     public int run(int desiredPort) {
+        DataAccess db = new SQLDataAccess();
 
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");

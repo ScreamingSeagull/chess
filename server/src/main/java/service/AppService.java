@@ -1,13 +1,10 @@
 package service;
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 
 public class AppService {
-    private UserDAO UDAO = new UserDAO();
-    private AuthDAO ADAO = new AuthDAO();
-    private GameDAO GDAO = new GameDAO();
+    private UserDAO UDAO;
+    private AuthDAO ADAO;
+    private GameDAO GDAO;
 
     public AppService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
         UDAO = udao;

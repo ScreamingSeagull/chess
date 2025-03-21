@@ -4,13 +4,13 @@ import model.*;
 import dataaccess.*;
 import model.result.*;
 import model.request.*;
-import java.security.Provider;
+
 import java.util.UUID;
 
 public class UserService {
-    private UserDAO UDAO = new UserDAO();
-    private AuthDAO ADAO = new AuthDAO();
-    private GameDAO GDAO = new GameDAO();
+    private UserDAO UDAO; //originally set to new userDAO, not needed
+    private AuthDAO ADAO;
+    private GameDAO GDAO;
 
     public UserService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
         UDAO = udao;

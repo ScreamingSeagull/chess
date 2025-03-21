@@ -1,8 +1,8 @@
 package service;
-import dataaccess.AuthDAO;
+import dataaccess.MemoryAuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.RegisterResult;
@@ -12,9 +12,9 @@ import passoff.exception.TestException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserServiceTests {
-    private static final AuthDAO aDAO = new AuthDAO();
-    private static final UserDAO uDAO = new UserDAO();
-    private static final GameDAO gDAO = new GameDAO();
+    private static final MemoryAuthDAO aDAO = new MemoryAuthDAO();
+    private static final MemoryUserDAO uDAO = new MemoryUserDAO();
+    private static final MemoryGameDAO gDAO = new MemoryGameDAO();
 
     private static final UserService userService = new UserService(uDAO, aDAO, gDAO);
     private static final AppService appService = new AppService(uDAO, aDAO, gDAO);

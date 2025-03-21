@@ -8,7 +8,7 @@ import service.*;
 import model.request.*;
 
 public class Server {
-    private UserDAO UDAO = new SQLUserDAO(); //CHANGE TO SQLUSERDAO ***************************************************************
+    private UserDAO UDAO = new SQLUserDAO();
     private AuthDAO ADAO = new SQLAuthDAO();
     private GameDAO GDAO = new SQLGameDAO();
     private UserService userService = new UserService(UDAO, ADAO, GDAO);
@@ -16,8 +16,6 @@ public class Server {
     private AuthService authService = new AuthService(UDAO, ADAO, GDAO);
     private GameService gameService = new GameService(UDAO, ADAO, GDAO);
     public int run(int desiredPort) {
-        DataAccess db = new SQLDataAccess();
-
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -34,7 +32,7 @@ public class Server {
         Spark.awaitInitialization();
         return Spark.port();
     }
-    private Object clearApp(Request req, Response res)  {
+    private Object clearApp(Request req, Response res) throws DataAccessException {
         appService.deleteall();
         res.status(200); //Throw exceptions in Service
         res.body("");

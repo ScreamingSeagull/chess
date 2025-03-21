@@ -12,7 +12,7 @@ public class AppService {
         GDAO = gdao;
     }
 
-    public void deleteall() {
+    public void deleteall() throws DataAccessException {
         UDAO.clearU();
         ADAO.clearA();
         GDAO.clearG();

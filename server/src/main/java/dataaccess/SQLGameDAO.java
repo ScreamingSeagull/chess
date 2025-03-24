@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 public class SQLGameDAO implements GameDAO{
+    public SQLGameDAO() throws DataAccessException {
+        DatabaseManager.createDatabase();
+    }
     private int executeUpdate(String statement) throws DataAccessException {
         try (var con = DatabaseManager.getConnection()) {
             try (var update = con.prepareStatement(statement)) {
@@ -21,26 +24,29 @@ public class SQLGameDAO implements GameDAO{
     }
 
     public void clearG() throws DataAccessException {
-        executeUpdate("TRUNCATE games");
+        executeUpdate("TRUNCATE games;");
     }
     public CreateGameResult createGame(String name) throws DataAccessException {
-        ChessGame newGame = new ChessGame();
-        int ID = games.size() + 1;
-        GameData game = new GameData(ID, null, null, name, newGame);
-        var statement = "INSERT INTO games (ID, game) VALUES (?, ?)";
-        var id = executeUpdate(statement, ID, game);
-        return new CreateGameResult(ID);
+//        ChessGame newGame = new ChessGame();
+//        int ID = games.size() + 1;
+//        GameData game = new GameData(ID, null, null, name, newGame);
+//        var statement = "INSERT INTO games (ID, game) VALUES (?, ?)";
+//        var id = executeUpdate(statement, ID, game);
+//        return new CreateGameResult(ID);
+        return null;
     }
     public GameData getGame(int id) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM games WHERE id=?";
-            return GameData;
-        }
+//        try (var conn = DatabaseManager.getConnection()) {
+//            var statement = "SELECT id, json FROM games WHERE id=?";
+//            return GameData;
+//        }
+        return null;
     }
     public Collection<GameData> listGames() throws DataAccessException {
-        return games.values();
+//        return games.values();
+         return null;
     }
     public void updateGame(int ID, GameData newGame) throws DataAccessException {
-        games.replace(ID, newGame);
+//        games.replace(ID, newGame);
     }
 }

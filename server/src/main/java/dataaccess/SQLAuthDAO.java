@@ -5,6 +5,9 @@ import model.AuthData;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO{
+    public SQLAuthDAO() throws DataAccessException {
+        DatabaseManager.createDatabase();
+    }
     private int executeUpdate(String statement) throws DataAccessException {
         try (var con = DatabaseManager.getConnection()) {
             try (var update = con.prepareStatement(statement)) {
@@ -17,17 +20,18 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     public void clearA() throws DataAccessException {
-        executeUpdate("TRUNCATE authData");
+        executeUpdate("TRUNCATE authData;");
     }
     public void createAuth(AuthData data) throws DataAccessException {
-        auths.put(data.authToken(), data);
+        //auths.put(data.authToken(), data);
     }
     public AuthData getAuth(String authToken) throws DataAccessException {
-        return auths.get(authToken);
+        //return auths.get(authToken);
+        return null;
     }
     public void deleteAuth(AuthData authData) throws DataAccessException {
-        if (auths.get(authData.authToken()) != null) {
-            auths.remove(authData.authToken());
-        }
+//        if (auths.get(authData.authToken()) != null) {
+//            auths.remove(authData.authToken());
+//        }
     }
 }

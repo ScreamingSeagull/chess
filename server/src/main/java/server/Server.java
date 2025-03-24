@@ -20,13 +20,14 @@ public class Server {
             UDAO = new SQLUserDAO();
             ADAO = new SQLAuthDAO();
             GDAO = new SQLGameDAO();
-            userService = new UserService(UDAO, ADAO, GDAO);
-            appService = new AppService(UDAO, ADAO, GDAO);
-            authService = new AuthService(UDAO, ADAO, GDAO);
-            gameService = new GameService(UDAO, ADAO, GDAO);
         } catch (DataAccessException e) {
             System.out.println("Server cannot start" + e.getMessage());
         }
+        userService = new UserService(UDAO, ADAO, GDAO);
+        appService = new AppService(UDAO, ADAO, GDAO);
+        authService = new AuthService(UDAO, ADAO, GDAO);
+        gameService = new GameService(UDAO, ADAO, GDAO);
+
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         Spark.delete("/db", this::clearApp);

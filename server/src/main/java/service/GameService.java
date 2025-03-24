@@ -5,7 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.result.*;
 import model.request.*;
-
+import static java.sql.Types.NULL;
 import java.util.Collection;
 
 public class GameService {
@@ -37,7 +37,7 @@ public class GameService {
         //returns 500 if description
     }
     public void joinGame(JoinGameRequest joinRequest, String authToken) throws DataAccessException, ServiceException {
-        GameData gameData = GDAO.getGame(joinRequest.gameID());
+        GameData gameData = GDAO.getGame(joinRequest.gameID()); //IT IS ACTUALLY GETTING THE GAME, RIGHT? ******************************************************
         GameData updatedGame;
         if (gameData == null || joinRequest.playerColor() == null || joinRequest.playerColor().isEmpty()) {
             throw new ServiceException(400, "Error: bad request");
@@ -47,13 +47,14 @@ public class GameService {
             throw new ServiceException(401, "Error: unauthorized");
         }
         if (joinRequest.playerColor().equals("WHITE") || joinRequest.playerColor().equals("White") || joinRequest.playerColor().equals("white")) {
-            if(gameData.whiteUsername()!=null) {
+            if (gameData.whiteUsername() != null){
                 throw new ServiceException(403, "Error: already taken");
             }
             updatedGame = new GameData(gameData.gameID(), authData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+
         }
         else if (joinRequest.playerColor().equals("BLACK") || joinRequest.playerColor().equals("Black") || joinRequest.playerColor().equals("black")) {
-            if(gameData.blackUsername()!=null) {
+            if (gameData.blackUsername() != null){
                 throw new ServiceException(403, "Error: already taken");
             }
             updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), authData.username(), gameData.gameName(), gameData.game());

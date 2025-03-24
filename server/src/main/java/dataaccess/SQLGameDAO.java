@@ -22,8 +22,8 @@ public class SQLGameDAO implements GameDAO{
                 CREATE TABLE IF NOT EXISTS games (
                 gameID int NOT NULL AUTO_INCREMENT,
                 gameName varchar(256) NOT NULL,
-                whiteUsername varchar(256) NOT NULL,
-                blackUsername varchar(256) NOT NULL,
+                whiteUsername varchar(256),
+                blackUsername varchar(256),
                 game longtext NOT NULL,
                 PRIMARY KEY (gameID)
             );
@@ -58,8 +58,8 @@ public class SQLGameDAO implements GameDAO{
     }
     public CreateGameResult createGame(String name) throws DataAccessException {
         ChessGame newGame = new ChessGame();
-        var statement = "INSERT INTO games (gameName, whiteUsername, blackUsername, game)) VALUES (?, ?, ?, ?)";
-        int id = executeUpdate(statement, null, null, null, newGame);
+        var statement = "INSERT INTO games (gameName, whiteUsername, blackUsername, game) VALUES (?, ?, ?, ?)";
+        int id = executeUpdate(statement, name, null, null, newGame);
         return new CreateGameResult(id);
     }
     public GameData getGame(int gameID) throws DataAccessException {
@@ -96,7 +96,7 @@ public class SQLGameDAO implements GameDAO{
         }
     }
     public void updateGame(int gameID, GameData newGame) throws DataAccessException {
-        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, game=?, WHERE gameID=?;";
+        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?;";
         executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), newGame.gameName(), new Gson().toJson(newGame.game()), gameID);
     }
 }

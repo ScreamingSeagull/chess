@@ -4,6 +4,7 @@ import model.*;
 import dataaccess.*;
 import model.result.*;
 import model.request.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class UserService {
         if (data == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        if (data.password().equals(loginRequest.password())){
+        if (BCrypt.checkpw(loginRequest.password(), data.password())){
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
             ADAO.createAuth(authData);
             return new LoginResult(authData.authToken(), authData.username());

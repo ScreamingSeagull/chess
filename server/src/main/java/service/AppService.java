@@ -13,8 +13,8 @@ public class AppService {
     }
 
     public void deleteall() throws DataAccessException {
-        UDAO.clearU();
-        ADAO.clearA();
-        GDAO.clearG();
+        if (UDAO != null) {UDAO.clearU();}
+        if (ADAO != null) {ADAO.clearA();}
+        if (GDAO != null) {GDAO.clearG();}
     }
 }

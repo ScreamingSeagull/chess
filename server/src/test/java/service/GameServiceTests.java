@@ -1,8 +1,5 @@
 package service;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
@@ -15,13 +12,23 @@ import passoff.exception.TestException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GameServiceTests {
-    private static final MemoryAuthDAO aDAO = new MemoryAuthDAO();
-    private static final MemoryUserDAO uDAO = new MemoryUserDAO();
-    private static final MemoryGameDAO gDAO = new MemoryGameDAO();
+    private static SQLAuthDAO aDAO;
+    private static SQLUserDAO uDAO;
+    private static SQLGameDAO gDAO;
 
     private static final UserService userService = new UserService(uDAO, aDAO, gDAO);
     private static final AppService appService = new AppService(uDAO, aDAO, gDAO);
     private static final GameService gameService = new GameService(uDAO, aDAO, gDAO);
+
+    public GameServiceTests() {
+        try {
+            uDAO = new SQLUserDAO();
+            aDAO = new SQLAuthDAO();
+            gDAO = new SQLGameDAO();
+        } catch (DataAccessException e) {
+            System.out.println("Server cannot start" + e.getMessage());
+        }
+    }
 
     @Test
     @DisplayName("Good listGames")

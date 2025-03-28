@@ -1,6 +1,11 @@
 package Client;
 
 import exception.ResponseException;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 //import client.websocket.WebSocketFacade;
@@ -8,7 +13,6 @@ import java.util.Arrays;
 
 public class client {
     private final ServerFacade server;
-    //private WebSocketFacade ws;
     private State state = State.SIGNEDOUT;
     public client(String domainName) throws URISyntaxException, IOException {
         server = new ServerFacade(domainName);
@@ -39,39 +43,33 @@ public class client {
         }
     }
     public void clearDB() {
-
+        server.clearDB();
     }
     public void register(String... params) {
-        if (params.length == 3){ //Username, password, email
-            //ws.register();
-            //Return register result
-        }
-        throw new ResponseException(params.length, "Incorrect number of parameters provided");
+        RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
+        server.register(req);
     }
     public void login(String... params) {
-        if (params.length == 2) { //Username, password
-            state = State.SIGNEDIN;
-            //ws = new WebSocketFacade(server);
-            //ws.login(username, password);
-            //Return login result
-        }
+        LoginRequest req = new LoginRequest(params[0], params[1]); //Check parameters
+        server.login(req);
     }
     public void logout(){
-
+        server.logout();
     }
     public void list(){
-        //Return listgames result
+        server.list();
 
     }
     public void create(String... params){
-        //Return creategames result
-
+        CreateGameRequest req = new CreateGameRequest(params[0], params[1]); //Check parameters
+        server.create(req);
     }
     public void join(String... params){
-
+        JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]); //Check parameters
+        server.join(req);
     }
     public void help(){
-
+        //Not handled by server, keep local
     }
     private void showGame() {
         //output chessboard

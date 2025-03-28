@@ -1,15 +1,16 @@
 package Client;
 
+import chess.*;
 import exception.ResponseException;
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
-//import client.websocket.WebSocketFacade;
 import java.util.Arrays;
+import java.util.Collection;
+import static ui.EscapeSequences.*;
 
 public class client {
     private final ServerFacade server;
@@ -71,7 +72,69 @@ public class client {
     public void help(){
         //Not handled by server, keep local
     }
-    private void showGame() {
-        //output chessboard
+    private void prompt() {
+        System.out.println("\n" + RESET_TEXT_COLOR + ">>>" + SET_TEXT_COLOR_GREEN);
+    }
+    private void printGame() {
+        stringBoard(null, null, false);
+        prompt();
+    }
+    private String stringBoard(ChessBoard board, Collection<ChessPosition> locations, boolean black){
+        int up = black ? 1:8;
+        int down = black ? 8:1;
+        int diff = black ? -1:1;
+        StringBuilder sb = new StringBuilder();
+        boolean alt = true;
+        buildUp(sb, black);
+        boolean altTile = true; //switch between the two each time, boolean = !boolean
+        buildTile(sb, altTile, ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, true);
+        sb.append(RESET_BG_COLOR + '\n');
+        return "null";
+    }
+    private void buildUp(StringBuilder sb, boolean black) {
+        int up = black ? 1:8;
+        int down = black ? 8:1;
+        char diff = (char) (black ? -1:1);
+        buildBorder(sb);
+    }
+    private void buildBorder(StringBuilder sb) {
+        sb.append(SET_BG_COLOR_YELLOW + SET_TEXT_COLOR_WHITE);
+        sb.append("dimensions");
+        sb.append("*");
+        sb.append("dimensions");
+    }
+    private void buildTile(StringBuilder sb, boolean altColor, ChessGame.TeamColor teamColor, ChessPiece.PieceType piece, boolean selected) {
+        if (selected) {
+            sb.append("selected");
+        } else if (altColor) {
+            sb.append("altcolor");
+        } else {
+            sb.append("basic color");
+        }
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            sb.append(SET_TEXT_COLOR_WHITE);
+        } else {
+            sb.append(SET_TEXT_COLOR_BLACK);
+        }
+    }
+    private void buildPiece(StringBuilder sb, ChessGame.TeamColor teamColor, ChessPiece.PieceType piece) { //May need config options for printing?
+        if (piece != null) {
+            switch(piece) {
+                case KING:
+                    break;
+                case QUEEN:
+                    break;
+                case BISHOP:
+                    break;
+                case ROOK:
+                    break;
+                case KNIGHT:
+                    break;
+                case PAWN:
+                    break;
+            }
+        } else {
+            sb.append("n/a");
+        }
     }
 }

@@ -5,6 +5,8 @@ import exception.ResponseException;
 import model.request.*;
 import model.result.*;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -36,11 +38,25 @@ public class ServerFacade {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
             try(OutputStream reqBody = http.getOutputStream()){
-
+                reqBody.write(reqData.getBytes());
             } catch (Exception e) {
-
+                throw new ResponseException(500, e.getMessage());
             }
         }
+    }
+    private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) {
+        T response = null;
+        if (http.getContentLength() < 1) {
+            try (InputStream resBody = http.getInputStream()) {
+                InputStreamReader read = new InputStreamReader(resBody);
+                if (responseClass != null) {
+                    response = new Gson().fromJson(read, responseClass);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return response;
     }
     public void clearDB() {
         var path = "/db";

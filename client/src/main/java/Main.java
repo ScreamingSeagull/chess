@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws URISyntaxException, IOException {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
-        String domainName = "localhost:8080";
+        String domainName = "http://localhost:8080";
         if (args.length >= 1) {
             domainName = args[0];
         }

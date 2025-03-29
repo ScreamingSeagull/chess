@@ -62,7 +62,6 @@ public class Server {
         res.status(200); //Throw exceptions in Service
         res.body(body);
         return body;
-
     }
     private Object logout(Request req, Response res) throws DataAccessException {
         userService.logout(req.headers("Authorization"));
@@ -100,7 +99,7 @@ public class Server {
         return body;
     }
     public Object serviceErrorHandler(ServiceException e, Request req, Response res) {
-        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
+        var body = new Gson().toJson(Map.of("message", String.format("%s", e.getMessage()), "success", false));
         res.type("application/json");
         res.status(e.getCode());
         res.body(body);

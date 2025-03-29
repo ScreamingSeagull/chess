@@ -21,11 +21,10 @@ public class repl {
             prompt();
             line = scan.nextLine();
             command.eval(line); //Set eval to return string if needed for command line replies
-
         }
         System.out.println();
     }
     private void prompt() {
-        System.out.println("\n" + RESET_TEXT_COLOR + ">>>" + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + ">>>" + SET_TEXT_COLOR_GREEN);
     }
 }

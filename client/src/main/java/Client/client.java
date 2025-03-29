@@ -45,14 +45,13 @@ public class client {
                 case "list"->list();
                 case "create"->create(params);
                 case "join"->join(params);
-                default->help();
+                case "help" ->help();
             }
         } catch (ResponseException e) {
-            throw new ResponseException(999, "Incorrect command entered"); //999 error code because idk what the code is supposed to be
+            out.println(e.getMessage()); //999 error code because idk what the code is supposed to be
         }
     }
     public void clearDB() {
-        printG(out);
         //server.clearDB();
     }
     public void register(String... params) {
@@ -68,7 +67,6 @@ public class client {
     }
     public void list(){
         server.list();
-
     }
     public void create(String... params){
         CreateGameRequest req = new CreateGameRequest(params[0], params[1]); //Check parameters
@@ -79,7 +77,7 @@ public class client {
         server.join(req);
     }
     public void help(){
-        //Not handled by server, keep local
+        out.println("lmao this loser needs help, imagine.");
     }
     private void printHorizontalBorder(PrintStream out) {
         drawSquare(out, null, null, null);
@@ -110,22 +108,48 @@ public class client {
                 return ' ';
         }
     }
-
-    private void printG(PrintStream out) {
-        printHorizontalBorder(out);
-        for (int boardRow = 0; boardRow < 8; ++boardRow) {
-            drawSquare(out, null, null, (char)(boardRow + 49)); //Using ascii interpretation, int converted to char of set number
-            for (int boardCol = 0; boardCol < 8; ++boardCol) {
-                if ((boardRow + boardCol) % 2 == 0) {
-                    drawSquare(out, Color.white, Color.BLACK, convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                } else {
-                    drawSquare(out, Color.black, Color.WHITE, ' ');
-                }
-            }
-            drawSquare(out, null, null, (char)(boardRow + 49));
-            out.println(RESET_BG_COLOR);
+    private Color convertCol(ChessPiece piece) {
+        if(piece == null) {
+            return null;
         }
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
+    }
+
+    private void printG(PrintStream out, boolean black) {
         printHorizontalBorder(out);
+        if (black) { //Ascends from 1
+            for (int boardRow = 0; boardRow < 8; ++boardRow) {
+                drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
+                for (int boardCol = 0; boardCol < 8; ++boardCol) {
+                    if ((boardRow + boardCol) % 2 == 0) {
+                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    } else {
+                        drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    }
+                }
+                drawSquare(out, null, null, (char) (boardRow + 49));
+                out.println(RESET_BG_COLOR);
+            }
+            printHorizontalBorder(out);
+        } else{ //Descends from 8
+            for (int boardRow = 7; boardRow >= 0; --boardRow) {
+                drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
+                for (int boardCol = 0; boardCol < 8; ++boardCol) {
+                    if ((boardRow + boardCol) % 2 == 0) {
+                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    } else {
+                        drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    }
+                }
+                drawSquare(out, null, null, (char) (boardRow + 49));
+                out.println(RESET_BG_COLOR);
+            }
+            printHorizontalBorder(out);
+        }
     }
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {
         if (squareColor == Color.WHITE){
@@ -133,14 +157,14 @@ public class client {
         } else if (squareColor == Color.BLACK){
             out.print(SET_BG_COLOR_DARK_GREY);
         } else if (squareColor == null) {
-            out.print(SET_BG_COLOR_WHITE);
+            out.print(SET_BG_COLOR_BLACK);
         }
         if (pieceColor == Color.WHITE){
             out.print(SET_TEXT_COLOR_WHITE);
         } else if (pieceColor == Color.BLACK){
             out.print(SET_TEXT_COLOR_BLACK);
         } else if (pieceColor == null) {
-            out.print(SET_TEXT_COLOR_LIGHT_GREY);
+            out.print(SET_TEXT_COLOR_WHITE);
         }
         if (c == null) {
             out.print("\u2005\u2005 \u2005\u2005");

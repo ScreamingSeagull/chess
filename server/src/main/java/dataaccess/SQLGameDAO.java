@@ -35,11 +35,11 @@ public class SQLGameDAO implements GameDAO{
             try (var update = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String s) update.setString(i+1, s);
-                    if (param instanceof ChessGame g) update.setString(i+1, new Gson().toJson(g));
-                    if (param instanceof Boolean b) update.setBoolean(i+1, b);
-                    if (param instanceof Integer j) update.setInt(i+1, j);
-                    if (param == null) update.setNull(i+1, NULL);
+                    if (param instanceof String s) {update.setString(i+1, s);}
+                    if (param instanceof ChessGame g) {update.setString(i+1, new Gson().toJson(g));}
+                    if (param instanceof Boolean b) {update.setBoolean(i+1, b);}
+                    if (param instanceof Integer j) {update.setInt(i+1, j);}
+                    if (param == null) {update.setNull(i+1, NULL);}
                 }
                 update.executeUpdate();
                 var keys = update.getGeneratedKeys();

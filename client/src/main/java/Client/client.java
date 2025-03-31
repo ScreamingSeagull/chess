@@ -52,6 +52,7 @@ public class client {
         }
     }
     public void clearDB() {
+        printG(out, true);
         //server.clearDB();
     }
     public void register(String... params) {
@@ -119,7 +120,7 @@ public class client {
         }
     }
 
-    private void printG(PrintStream out, boolean black) {
+    private void printG(PrintStream out, boolean black) { //needs to flip black, white good
         printHorizontalBorder(out);
         if (black) { //Ascends from 1
             for (int boardRow = 0; boardRow < 8; ++boardRow) {

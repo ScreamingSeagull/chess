@@ -6,6 +6,8 @@ import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import model.result.ListGamesResult;
+
 import java.nio.charset.StandardCharsets;
 import java.awt.*;
 import java.io.IOException;
@@ -46,34 +48,34 @@ public class client {
                 case "create"->create(params);
                 case "join"->join(params);
                 case "help" ->help();
+                case "print" ->printG(out, false);
             }
         } catch (ResponseException e) {
             out.println(e.getMessage()); //999 error code because idk what the code is supposed to be
         }
     }
     public void clearDB() {
-        printG(out, true);
-        //server.clearDB();
+        server.clearDB();
     }
     public void register(String... params) {
         RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
         server.register(req);
     }
-    public void login(String... params) {
+    public void login(String... params) { //Add check to make sure not already logged in
         LoginRequest req = new LoginRequest(params[0], params[1]); //Check parameters
         server.login(req);
     }
     public void logout(){
         server.logout();
     }
-    public void list(){
-        server.list();
+    public void list(){ //Actually display the listed games
+        ListGamesResult res = server.list();
+        System.out.println(res);
     }
     public void create(String... params){
-        CreateGameRequest req = new CreateGameRequest(params[0], params[1]); //Check parameters
-        server.create(req);
+        server.create(params[0]);
     }
-    public void join(String... params){
+    public void join(String... params){ //GameID, playerColor
         JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]); //Check parameters
         server.join(req);
     }

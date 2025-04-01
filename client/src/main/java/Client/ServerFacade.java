@@ -17,6 +17,7 @@ import java.util.HashMap;
 public class ServerFacade {
     private final String domainName;
     HttpURLConnection http;
+    String authToken;
     public ServerFacade(String domainName) throws URISyntaxException, IOException {
         this.domainName = domainName;
     }
@@ -26,7 +27,7 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
+            http.addRequestProperty("authorization", authToken);
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
@@ -78,11 +79,15 @@ public class ServerFacade {
     }
     public RegisterResult register(RegisterRequest req) throws ResponseException {
         var path = "/user";
-        return makeRequest("POST", path, req, RegisterResult.class);
+        RegisterResult res = makeRequest("POST", path, req, RegisterResult.class);
+        authToken = res.authToken();
+        return res;
     }
     public LoginResult login(LoginRequest req) {
         var path = "/session";
-        return makeRequest("POST", path, req, LoginResult.class);
+        LoginResult res = makeRequest("POST", path, req, LoginResult.class);
+        authToken = res.authToken();
+        return res;
     }
     public void logout() {
         var path = "/session";
@@ -92,7 +97,8 @@ public class ServerFacade {
         var path = "/game";
         return makeRequest("GET", path, null, ListGamesResult.class);
     }
-    public CreateGameResult create(CreateGameRequest req) {
+    public CreateGameResult create(String name) {
+        CreateGameRequest req = new CreateGameRequest(authToken, name);
         var path = "/game";
         return makeRequest("POST", path, req, CreateGameResult.class);
     }

@@ -21,7 +21,11 @@ public class ChessMove {
     }
     @Override
     public String toString() {
-        return "Start: " + getStartPosition().getRow() + ", " + getStartPosition().getColumn() + " End: " + getEndPosition().getRow() + ", " + getEndPosition().getColumn() + " " + type;
+        return "Start: " + getStartPosition().getRow() +
+                ", " + getStartPosition().getColumn() +
+                " End: " + getEndPosition().getRow() +
+                ", " + getEndPosition().getColumn() +
+                " " + type;
     }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,

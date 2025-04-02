@@ -2,19 +2,22 @@ package service;
 import dataaccess.*;
 
 public class AppService {
-    private UserDAO UDAO;
-    private AuthDAO ADAO;
-    private GameDAO GDAO;
+    private UserDAO udao;
+    private AuthDAO adao;
+    private GameDAO gdao;
 
     public AppService(UserDAO udao, AuthDAO adao, GameDAO gdao) {
-        UDAO = udao;
-        ADAO = adao;
-        GDAO = gdao;
+        this.udao = udao;
+        this.adao = adao;
+        this.gdao = gdao;
     }
 
     public void deleteall() throws DataAccessException {
-        if (UDAO != null) {UDAO.clearU();}
-        if (ADAO != null) {ADAO.clearA();}
-        if (GDAO != null) {GDAO.clearG();}
+        if (udao != null) {
+            udao.clearU();}
+        if (adao != null) {
+            adao.clearA();}
+        if (gdao != null) {
+            gdao.clearG();}
     }
 }

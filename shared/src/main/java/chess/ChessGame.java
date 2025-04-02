@@ -136,7 +136,7 @@ public class ChessGame {
     }
     public boolean isInCheckmate(TeamColor teamColor, ChessBoard board) { //ERROR WITH SWITCHING BOARD WAS MANIPULATING INPUT BOARD BUT USING CLASS BOARD
         ChessPosition kingpos = findKing(teamColor, board); //Finds king position
-        if (kingpos == null) return true;
+        if (kingpos == null) {return true;}
         Collection<ChessMove> kingmoves = board.getPiece(kingpos).pieceMoves(board, kingpos); //If move to kill king is legal, it does the move and then checks for this, thus allowing a null king location
         Collection<ChessMove> actualmoves = board.getPiece(kingpos).pieceMoves(board, kingpos);
         for (ChessMove possible : kingmoves) {
@@ -155,7 +155,7 @@ public class ChessGame {
                         Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
                         for (ChessMove attack : possibleattack) {
                             if (attack.getEndPosition().equals(kingpos)) {
-                                if ((attacker.getRow() > 0 && attacker.getColumn() > 0) && (attacker.getRow() != attack.getStartPosition().getRow() && attacker.getColumn() != attack.getStartPosition().getColumn())) return true;
+                                if ((attacker.getRow() > 0 && attacker.getColumn() > 0) && (attacker.getRow() != attack.getStartPosition().getRow() && attacker.getColumn() != attack.getStartPosition().getColumn())) {return true;}
                                 attacker.changeRow(attack.getStartPosition().getRow());
                                 attacker.changeColumn(attack.getStartPosition().getColumn());
                             }
@@ -176,7 +176,7 @@ public class ChessGame {
                                 ChessBoard temp2 = new ChessBoard();
                                 copyboard(tempboard, temp2);
                                 doMove(attack, temp2);
-                                if (isInCheck(teamColor, temp2)) return true;
+                                if (isInCheck(teamColor, temp2)) {return true;}
                                 return false;
                             }
                         }
@@ -212,7 +212,7 @@ public class ChessGame {
     }
 
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheckmate(teamColor)) return false;
+        if (isInCheckmate(teamColor)) {return false;}
         ChessPosition current = new ChessPosition(1, 1); //Starts at 1, 1
         for (int i = 1; i <= 8; i++) {
             current.changeRow(i);
@@ -222,7 +222,7 @@ public class ChessGame {
                     Collection<ChessMove> moves = validMoves(current);
                     if (moves.isEmpty()) {
                         //Not able to return
-                    } else return false;
+                    } else {return false;}
                 }
             }
         }

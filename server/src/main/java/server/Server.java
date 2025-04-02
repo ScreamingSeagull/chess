@@ -8,25 +8,25 @@ import service.*;
 import model.request.*;
 
 public class Server {
-    private UserDAO UDAO;
-    private AuthDAO ADAO;
-    private GameDAO GDAO;
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
     private UserService userService;
     private AppService appService;
     private AuthService authService;
     private GameService gameService;
     public int run(int desiredPort) {
         try {
-            UDAO = new SQLUserDAO();
-            ADAO = new SQLAuthDAO();
-            GDAO = new SQLGameDAO();
+            userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
+            gameDAO = new SQLGameDAO();
         } catch (DataAccessException e) {
             System.out.println("Server cannot start" + e.getMessage());
         }
-        userService = new UserService(UDAO, ADAO, GDAO);
-        appService = new AppService(UDAO, ADAO, GDAO);
-        authService = new AuthService(UDAO, ADAO, GDAO);
-        gameService = new GameService(UDAO, ADAO, GDAO);
+        userService = new UserService(userDAO, authDAO, gameDAO);
+        appService = new AppService(userDAO, authDAO, gameDAO);
+        authService = new AuthService(userDAO, authDAO, gameDAO);
+        gameService = new GameService(userDAO, authDAO, gameDAO);
 
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");

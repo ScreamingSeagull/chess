@@ -15,10 +15,10 @@ public class MemoryGameDAO implements GameDAO {
     }
     public CreateGameResult createGame(String name) throws DataAccessException {
         ChessGame newGame = new ChessGame();
-        int ID = games.size() + 1;
-        GameData game = new GameData(ID, null, null, name, newGame);
-        games.put(ID, game);
-        return new CreateGameResult(ID);
+        int id = games.size() + 1;
+        GameData game = new GameData(id, null, null, name, newGame);
+        games.put(id, game);
+        return new CreateGameResult(id);
     }
     public GameData getGame(int id) throws DataAccessException {
         return games.get(id);
@@ -26,7 +26,7 @@ public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> listGames() throws DataAccessException {
         return games.values();
     }
-    public void updateGame(int ID, GameData newGame) throws DataAccessException {
-        games.replace(ID, newGame);
+    public void updateGame(int id, GameData newGame) throws DataAccessException {
+        games.replace(id, newGame);
     }
 }

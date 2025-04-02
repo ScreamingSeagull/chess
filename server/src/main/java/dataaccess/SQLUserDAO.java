@@ -61,8 +61,7 @@ public class SQLUserDAO implements UserDAO {
 
     public RegisterResult createUser(UserData userData, AuthData authData) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?);";
-        String hash = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-        executeUpdate(statement, userData.username(), hash, userData.email());
+        executeUpdate(statement, userData.username(), userData.password(), userData.email());
         return new RegisterResult(authData.authToken(), userData.username());
     }
 

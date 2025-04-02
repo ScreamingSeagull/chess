@@ -1,4 +1,4 @@
-package Client;
+package client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -7,10 +7,10 @@ import static ui.EscapeSequences.*;
 
 
 
-public class repl {
-    private final client command;
-    public repl(String domainName) throws URISyntaxException, IOException {
-        command = new client(domainName);
+public class Repl {
+    private final Client command;
+    public Repl(String domainName) throws URISyntaxException, IOException {
+        command = new Client(domainName);
     }
     public void run() {
         System.out.println("Welcome to CS240 Chess");

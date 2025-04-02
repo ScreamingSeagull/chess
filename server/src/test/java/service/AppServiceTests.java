@@ -8,21 +8,21 @@ import org.junit.jupiter.api.Test;
 import passoff.exception.TestException;
 
 public class AppServiceTests {
-    private static final MemoryAuthDAO aDAO = new MemoryAuthDAO();
-    private static final MemoryUserDAO uDAO = new MemoryUserDAO();
-    private static final MemoryGameDAO gDAO = new MemoryGameDAO();
+    private static final MemoryAuthDAO ADAO = new MemoryAuthDAO();
+    private static final MemoryUserDAO UDAO = new MemoryUserDAO();
+    private static final MemoryGameDAO GDAO = new MemoryGameDAO();
 
-    private static final UserService userService = new UserService(uDAO, aDAO, gDAO);
-    private static final AppService appService = new AppService(uDAO, aDAO, gDAO);
-    private static final GameService gameService = new GameService(uDAO, aDAO, gDAO);
+    private static final UserService USER_SERVICE = new UserService(UDAO, ADAO, GDAO);
+    private static final AppService APP_SERVICE = new AppService(UDAO, ADAO, GDAO);
+    private static final GameService GAME_SERVICE = new GameService(UDAO, ADAO, GDAO);
 
     @Test
     @DisplayName("Clear Database")
     public void clearDatabase() throws DataAccessException {
-        RegisterResult registerResult = userService.register(new RegisterRequest("NewUser", "UserPassword", "Email@job.com"));
-        gameService.createGame(new CreateGameRequest(registerResult.authToken(),"Basic Chess Game"), registerResult.authToken());
+        RegisterResult registerResult = USER_SERVICE.register(new RegisterRequest("NewUser", "UserPassword", "Email@job.com"));
+        GAME_SERVICE.createGame(new CreateGameRequest(registerResult.authToken(),"Basic Chess Game"), registerResult.authToken());
         try {
-            appService.deleteall();
+            APP_SERVICE.deleteall();
         } catch (Exception cannotClear) {
             throw new TestException("cannot clear database");
         }

@@ -35,7 +35,8 @@ public class UserService {
         }
         AuthData authData = new AuthData(generateToken(), registerRequest.username());
         ADAO.createAuth(authData);
-        return UDAO.createUser((new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email())), authData);
+        String hash = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+        return UDAO.createUser((new UserData(registerRequest.username(), hash, registerRequest.email())), authData);
         //500=description of error
     }
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, ServiceException {

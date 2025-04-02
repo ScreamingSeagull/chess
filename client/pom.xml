@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
 
     <build>
-        <finalName>Client.client</finalName>
+        <finalName>client.Client</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

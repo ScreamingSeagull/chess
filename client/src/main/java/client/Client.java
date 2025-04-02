@@ -1,14 +1,12 @@
-package Client;
+package client;
 
 import chess.*;
 import exception.ResponseException;
 import model.GameData;
-import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.ListGamesResult;
-import model.result.RegisterResult;
 
 import java.nio.charset.StandardCharsets;
 import java.awt.*;
@@ -16,17 +14,15 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Collection;
 
-import static java.sql.Types.NULL;
 import static ui.EscapeSequences.*;
 
-public class client {
+public class Client {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
-    public client(String domainName) throws URISyntaxException, IOException {
+    public Client(String domainName) throws URISyntaxException, IOException {
         server = new ServerFacade(domainName);
         board.resetBoard();
     }

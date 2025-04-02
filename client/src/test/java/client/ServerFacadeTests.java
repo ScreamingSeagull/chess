@@ -1,6 +1,5 @@
 package client;
 
-import Client.ServerFacade;
 import exception.ResponseException;
 import model.request.*;
 import model.result.*;

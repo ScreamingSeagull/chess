@@ -16,15 +16,18 @@ public class GameServiceTests {
     private static SQLUserDAO uDAO;
     private static SQLGameDAO gDAO;
 
-    private static final UserService userService = new UserService(uDAO, aDAO, gDAO);
-    private static final AppService appService = new AppService(uDAO, aDAO, gDAO);
-    private static final GameService gameService = new GameService(uDAO, aDAO, gDAO);
+    private static UserService userService;
+    private static AppService appService;
+    private static GameService gameService;
 
     public GameServiceTests() {
         try {
             uDAO = new SQLUserDAO();
             aDAO = new SQLAuthDAO();
             gDAO = new SQLGameDAO();
+            userService = new UserService(uDAO, aDAO, gDAO);
+            appService = new AppService(uDAO, aDAO, gDAO);
+            gameService = new GameService(uDAO, aDAO, gDAO);
         } catch (DataAccessException e) {
             System.out.println("Server cannot start" + e.getMessage());
         }
@@ -53,7 +56,7 @@ public class GameServiceTests {
         LoginRequest loginRequest = new LoginRequest(newRequest.username(), newRequest.password());
         userService.login(loginRequest);
         try {
-            assertThrows(ServiceException.class, () ->gameService.listGames(result.username()), "Did not throw ServiceException Error");
+            assertThrows(ServiceException.class, () -> gameService.listGames(result.username()), "Did not throw ServiceException Error");
         } catch (Exception falseRegister) {
             throw new TestException("Displayed list of games, should not have been able to");
         }
@@ -83,7 +86,7 @@ public class GameServiceTests {
         userService.login(loginRequest);
         CreateGameRequest newGameRequest = new CreateGameRequest(result.authToken(), "Game Name No. 1");
         try {
-            assertThrows(ServiceException.class, () ->gameService.createGame(newGameRequest, "authToken"), "Did not throw ServiceException Error");
+            assertThrows(ServiceException.class, () -> gameService.createGame(newGameRequest, "authToken"), "Did not throw ServiceException Error");
         } catch (Exception falseRegister) {
             throw new TestException("Created game, should not have been able to");
         }
@@ -117,7 +120,7 @@ public class GameServiceTests {
         gameService.createGame(newGameRequest, result.authToken());
         JoinGameRequest joinRequest = new JoinGameRequest(0, "WHITE");
         try {
-            assertThrows(ServiceException.class, () ->gameService.joinGame(joinRequest, result.authToken()), "Did not throw ServiceException Error");
+            assertThrows(ServiceException.class, () -> gameService.joinGame(joinRequest, result.authToken()), "Did not throw ServiceException Error");
         } catch (Exception falseRegister) {
             throw new TestException("Joined game, should not have been able to");
         }

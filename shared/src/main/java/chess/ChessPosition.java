@@ -3,8 +3,8 @@ package chess;
 import java.util.Objects;
 
 public class ChessPosition {
-    int Row;
-    int Col;
+    int row;
+    int col;
 
     @Override
     public boolean equals(Object o) {
@@ -12,29 +12,29 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return Row == that.Row && Col == that.Col;
+        return row == that.row && col == that.col;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Row, Col);
+        return Objects.hash(row, col);
     }
 
     public ChessPosition(int row, int col) {
-        Row = row;
-        Col = col;
+        this.row = row;
+        this.col = col;
     }
 
     public int getRow() {
-        return Row;
+        return row;
     }
     public int getColumn() {
-        return Col;
+        return col;
     }
     public void changeRow(int row) {
-        Row = row;
+        this.row = row;
     }
     public void changeColumn(int col) {
-        Col = col;
+        this.col = col;
     }
 }

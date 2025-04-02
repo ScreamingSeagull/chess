@@ -1,4 +1,4 @@
-import Client.repl;
+import client.Repl;
 import chess.*;
 
 import java.io.IOException;
@@ -12,6 +12,6 @@ public class Main {
         if (args.length >= 1) {
             domainName = args[0];
         }
-        new repl(domainName).run();
+        new Repl(domainName).run();
     }
 }

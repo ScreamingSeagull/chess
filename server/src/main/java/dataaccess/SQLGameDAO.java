@@ -2,18 +2,11 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import model.GameData;
 import model.result.CreateGameResult;
-import model.result.RegisterResult;
-
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class SQLGameDAO extends SqlDAO implements GameDAO{
     public SQLGameDAO() throws DataAccessException {

@@ -4,15 +4,8 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
 import model.result.RegisterResult;
-import org.mindrot.jbcrypt.BCrypt;
-
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.UUID;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class SQLUserDAO extends SqlDAO implements UserDAO {
     public SQLUserDAO() throws DataAccessException {

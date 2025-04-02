@@ -2,11 +2,13 @@ package Client;
 
 import chess.*;
 import exception.ResponseException;
+import model.GameData;
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.ListGamesResult;
+import model.result.RegisterResult;
 
 import java.nio.charset.StandardCharsets;
 import java.awt.*;
@@ -49,6 +51,8 @@ public class client {
                 case "join"->join(params);
                 case "help" ->help();
                 case "print" ->printG(out, false);
+                case "quit" ->quitLogout();
+                default -> System.out.println("Incorrect command entered.");
             }
         } catch (ResponseException e) {
             out.println(e.getMessage()); //999 error code because idk what the code is supposed to be
@@ -56,28 +60,95 @@ public class client {
     }
     public void clearDB() {
         server.clearDB();
+        System.out.println("All databases wiped.");
     }
     public void register(String... params) {
-        RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
-        server.register(req);
+        if (state.equals(State.SIGNEDOUT)){
+            if (params.length != 3){
+                System.out.println("Username, Password, and Email not provided.");
+            }
+            RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
+            server.register(req);
+            System.out.println("Successfully registered.");
+        }
+        else {
+            System.out.println("Already logged in.");
+        }
     }
-    public void login(String... params) { //Add check to make sure not already logged in
-        LoginRequest req = new LoginRequest(params[0], params[1]); //Check parameters
-        server.login(req);
+    public void login(String... params) {
+        if (state.equals(State.SIGNEDOUT)){
+            LoginRequest req = new LoginRequest(params[0], params[1]); //Check parameters
+            server.login(req);
+            state = State.SIGNEDIN;
+            System.out.println("Logged in.");
+        }
+        else {
+            System.out.println("Already logged in.");
+        }
+    }
+    public void quitLogout() { //Helper function, does not print message if not logged in
+        if(state == State.SIGNEDIN) {
+            logout();
+        }
     }
     public void logout(){
-        server.logout();
+        if (state.equals(State.SIGNEDIN)){
+            server.logout();
+            state = State.SIGNEDOUT;
+            System.out.println("Logged out.");
+        }
+        else {
+            System.out.println("Not currently logged in, cannot log out.");
+        }
     }
     public void list(){ //Actually display the listed games
-        ListGamesResult res = server.list();
-        System.out.println(res);
+        if(state == state.SIGNEDIN) {
+            ListGamesResult res = server.list();
+            System.out.println("All games:");
+            for (GameData g : res.games()){
+                System.out.println(g);
+            }
+        }
+        else {
+            System.out.println("Not signed in.");
+        }
     }
     public void create(String... params){
-        server.create(params[0]);
+        if(state == state.SIGNEDIN) {
+            if(params.length != 1) {
+                System.out.println("Only enter the name of the game you wish to create.");
+            }
+            else{
+                server.create(params[0]);
+                System.out.println("Created new chess game " + params[0]);
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
     }
     public void join(String... params){ //GameID, playerColor
-        JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]); //Check parameters
-        server.join(req);
+        if(state == state.SIGNEDIN) {
+            if(params.length != 2) {
+                System.out.println("Please input only Game ID and player color.");
+            }
+            else if (params[0] !=) {
+                System.out.println("That game does not exist, please retry.");
+            }
+            else if (params[1] != "white" || params[1] != "black") {
+                System.out.println("Please input a valid player color.");
+            }
+            else if (color already taken) {
+                System.out.println("That player color is already taken.");
+            }
+            else {
+                JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]);
+                server.join(req);
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
     }
     public void help(){
         out.println("lmao this loser needs help, imagine.");

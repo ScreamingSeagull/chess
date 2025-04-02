@@ -13,7 +13,8 @@ public class repl {
         command = new client(domainName);
     }
     public void run() {
-        System.out.println("Welcome to CS240 Chess"); //Set text to new color, yellow perhaps
+        System.out.println("Welcome to CS240 Chess");
+        System.out.print(SET_TEXT_COLOR_GREEN);
         command.eval("help");
         Scanner scan = new Scanner(System.in);
         String line = "";
@@ -25,6 +26,6 @@ public class repl {
         System.out.println();
     }
     private void prompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>>" + SET_TEXT_COLOR_GREEN);
+        command.prompt();
     }
 }

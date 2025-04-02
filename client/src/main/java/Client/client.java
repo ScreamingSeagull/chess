@@ -42,7 +42,7 @@ public class client {
         String[] params = Arrays.copyOfRange(line, 1, line.length);
         try {
             switch(cmd) {
-                case "wipeall"->clearDB();
+                case "clearDB"->clearDB();
                 case "register"->register(params);
                 case "login"->login(params);
                 case "logout"->logout();
@@ -50,7 +50,8 @@ public class client {
                 case "create"->create(params);
                 case "join"->join(params);
                 case "help" ->help();
-                case "print" ->printG(out, false);
+                case "print" ->printG(out, true);
+                case "watch" ->observe(params);
                 case "quit" ->quitLogout();
                 default -> System.out.println("Incorrect command entered.");
             }
@@ -61,6 +62,7 @@ public class client {
     public void clearDB() {
         server.clearDB();
         System.out.println("All databases wiped.");
+        state = State.SIGNEDOUT;
     }
     public void register(String... params) {
         if (state.equals(State.SIGNEDOUT)){
@@ -69,7 +71,7 @@ public class client {
             }
             RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
             server.register(req);
-            System.out.println("Successfully registered.");
+            System.out.println("Successfully registered."); //Call login to auto login after registration?
         }
         else {
             System.out.println("Already logged in.");
@@ -90,6 +92,7 @@ public class client {
         if(state == State.SIGNEDIN) {
             logout();
         }
+        System.out.println("Logged out.");
     }
     public void logout(){
         if (state.equals(State.SIGNEDIN)){
@@ -127,23 +130,43 @@ public class client {
             System.out.println("Not currently logged in.");
         }
     }
-    public void join(String... params){ //GameID, playerColor
+    public void join(String... params){
         if(state == state.SIGNEDIN) {
             if(params.length != 2) {
                 System.out.println("Please input only Game ID and player color.");
             }
-            else if (params[0] !=) {
-                System.out.println("That game does not exist, please retry.");
+
+            else if (params[1].equals("white") || params[1].equals("black")) {
+                try {
+                    JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]);
+                    server.join(req);
+                    System.out.println("Joined game.");
+                    if (params[1].equals("white")){
+                        printG(out, false);
+                    } else {
+                        printG(out, true);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please input a valid gameID");
+                }
             }
-            else if (params[1] != "white" || params[1] != "black") {
-                System.out.println("Please input a valid player color.");
+            else {System.out.println("Please input a valid player color.");}
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
+    }
+    public void observe(String... params) {
+        if(state == state.SIGNEDIN) {
+            if(params.length != 1) {
+                System.out.println("Please input only Game ID");
             }
-            else if (color already taken) {
-                System.out.println("That player color is already taken.");
-            }
-            else {
-                JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]);
-                server.join(req);
+            try {
+                int game = Integer.parseInt(params[0]);
+                System.out.println("Now watching game number " + params[0]);
+                printG(out, false);
+            } catch (NumberFormatException e) {
+                System.out.println("Please input a valid gameID");
             }
         }
         else {
@@ -151,7 +174,22 @@ public class client {
         }
     }
     public void help(){
-        out.println("lmao this loser needs help, imagine.");
+        if (state == State.SIGNEDOUT) {
+            System.out.println("help - display commands for logged in and logged out states");
+            System.out.println("quit - end program");
+            System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - create an account");
+            System.out.println("login <USERNAME> <PASSWORD> - login to an existing account");
+        } else {
+            System.out.println("help - display commands for logged in and logged out states");
+            System.out.println("logout - logout from program");
+            System.out.println("create <GAMENAME> - create new game of specified name");
+            System.out.println("list - list currently running games");
+            System.out.println("join <GAMEID> <PLAYERCOLOR> - join a set game on a set player color");
+            System.out.println("watch <GAMEID> - observe a game in progress from the sidelines");
+        }
+    }
+    public void prompt() {
+        System.out.print("\n" + RESET_TEXT_COLOR + state +" >>>" + SET_TEXT_COLOR_GREEN);
     }
     private void printHorizontalBorder(PrintStream out) {
         drawSquare(out, null, null, null);
@@ -198,7 +236,7 @@ public class client {
         if (black) { //Ascends from 1
             for (int boardRow = 0; boardRow < 8; ++boardRow) {
                 drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
-                for (int boardCol = 0; boardCol < 8; ++boardCol) {
+                for (int boardCol = 7; boardCol >= 0; --boardCol) {
                     if ((boardRow + boardCol) % 2 == 0) {
                         drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
                     } else {
@@ -247,42 +285,3 @@ public class client {
             }
     }
 }
-
-//    private String stringBoard(ChessBoard board, Collection<ChessPosition> locations, boolean black){
-//        int up = black ? 1:8;
-//        int down = black ? 8:1;
-//        int diff = black ? -1:1;
-//        StringBuilder sb = new StringBuilder();
-//        boolean alt = true;
-//        buildUp(sb, black);
-//        boolean altTile = true; //switch between the two each time, boolean = !boolean
-//        buildTile(sb, altTile, ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, true);
-//        sb.append(RESET_BG_COLOR + '\n');
-//        return "null";
-//    }
-//    private void buildUp(StringBuilder sb, boolean black) {
-//        int up = black ? 1:8;
-//        int down = black ? 8:1;
-//        char diff = (char) (black ? -1:1);
-//        buildBorder(sb);
-//    }
-//    private void buildBorder(StringBuilder sb) {
-//        sb.append(SET_BG_COLOR_YELLOW + SET_TEXT_COLOR_WHITE);
-//        sb.append("dimensions");
-//        sb.append("*");
-//        sb.append("dimensions");
-//    }
-//    private void buildTile(StringBuilder sb, boolean altColor, ChessGame.TeamColor teamColor, ChessPiece.PieceType piece, boolean selected) {
-//        if (selected) {
-//            sb.append("selected");
-//        } else if (altColor) {
-//            sb.append("altcolor");
-//        } else {
-//            sb.append("basic color");
-//        }
-//        if (teamColor == ChessGame.TeamColor.WHITE) {
-//            sb.append(SET_TEXT_COLOR_WHITE);
-//        } else {
-//            sb.append(SET_TEXT_COLOR_BLACK);
-//        }
-//    }

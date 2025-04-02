@@ -9,4 +9,9 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
     String getBlack() {return blackUsername;}
     String getGameName() {return gameName;}
     ChessGame getGame() {return game;}
+
+    @Override
+    public String toString() {
+        return ("Game " + gameID + ": white- " + whiteUsername + ", black- " + blackUsername + ", name- " + gameName);
+    }
 }

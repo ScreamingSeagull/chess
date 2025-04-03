@@ -12,6 +12,6 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
 
     @Override
     public String toString() {
-        return ("Game " + gameID + ": white- " + whiteUsername + ", black- " + blackUsername + ", name- " + gameName);
+        return ("white- " + whiteUsername + ", black- " + blackUsername + ", name- " + gameName);
     }
 }

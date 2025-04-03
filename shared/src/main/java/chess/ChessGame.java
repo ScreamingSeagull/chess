@@ -152,13 +152,8 @@ public class ChessGame {
                 for (int j = 1; j <=8; j++){
                     current.changeColumn(j); //Traverses board
                     if(board.getPiece(current) != null) {
-                        Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
-                        for (ChessMove attack : possibleattack) {
-                            if (attack.getEndPosition().equals(kingpos)) {
-                                if ((attacker.getRow() > 0 && attacker.getColumn() > 0) && (attacker.getRow() != attack.getStartPosition().getRow() && attacker.getColumn() != attack.getStartPosition().getColumn())) {return true;}
-                                attacker.changeRow(attack.getStartPosition().getRow());
-                                attacker.changeColumn(attack.getStartPosition().getColumn());
-                            }
+                        if (checkmateCheck(board, current, kingpos, attacker)) {
+                            return true;
                         }
                     }
                 }
@@ -184,6 +179,20 @@ public class ChessGame {
                 }
             }
             return true; //Misplaced this return true statement way too far up, wasn't cycling through everything
+        }
+        return false;
+    }
+
+    private static boolean checkmateCheck(ChessBoard board, ChessPosition current, ChessPosition kingpos, ChessPosition attacker) {
+        Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current);
+        for (ChessMove attack : possibleattack) {
+            if (attack.getEndPosition().equals(kingpos)) {
+                if ((attacker.getRow() > 0 && attacker.getColumn() > 0) && (attacker.getRow() != attack.getStartPosition().getRow() && attacker.getColumn() != attack.getStartPosition().getColumn())) {
+                    return true;
+                }
+                attacker.changeRow(attack.getStartPosition().getRow());
+                attacker.changeColumn(attack.getStartPosition().getColumn());
+            }
         }
         return false;
     }

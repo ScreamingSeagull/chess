@@ -7,7 +7,7 @@ public class dataAccessTests {
     private static Server server;
 
     @BeforeEach
-    public void before() throws Exception {
+    public void before() throws Exception { //Tests DAO methods
         //server.clearDB();
     }
 }

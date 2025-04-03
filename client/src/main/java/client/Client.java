@@ -13,6 +13,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
@@ -22,6 +23,7 @@ public class Client {
     private State state = State.SIGNEDOUT;
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
+    ArrayList<GameData> gameDataArrayList = new ArrayList<>();
     public Client(String domainName) throws URISyntaxException, IOException {
         server = new ServerFacade(domainName);
         board.resetBoard();
@@ -38,7 +40,7 @@ public class Client {
         String[] params = Arrays.copyOfRange(line, 1, line.length);
         try {
             switch(cmd) {
-                case "clearDB"->clearDB();
+                case "clear"->clearDB();
                 case "register"->register(params);
                 case "login"->login(params);
                 case "logout"->logout();
@@ -64,10 +66,12 @@ public class Client {
         if (state.equals(State.SIGNEDOUT)){
             if (params.length != 3){
                 System.out.println("Username, Password, and Email not provided.");
+            } else{
+                RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
+                server.register(req);
+                login(params[0], params[1]);
+                System.out.println("Successfully registered."); //Call login to auto login after registration?
             }
-            RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
-            server.register(req);
-            System.out.println("Successfully registered."); //Call login to auto login after registration?
         }
         else {
             System.out.println("Already logged in.");
@@ -100,12 +104,21 @@ public class Client {
             System.out.println("Not currently logged in, cannot log out.");
         }
     }
+    public void createList(){
+        ListGamesResult res = server.list();
+        gameDataArrayList.clear();
+        gameDataArrayList.addAll(res.games());
+    }
     public void list(){ //Actually display the listed games
         if(state == state.SIGNEDIN) {
-            ListGamesResult res = server.list();
-            System.out.println("All games:");
-            for (GameData g : res.games()){
-                System.out.println(g);
+            createList();
+            if (gameDataArrayList.isEmpty()) {
+                System.out.println("No current games.");
+            } else {
+                System.out.println("All games:"); //Convert between game ID and number in list
+                for (int i = 0; i < gameDataArrayList.size(); i++) {
+                    System.out.println("Chess game " + (i+1) + ": " + gameDataArrayList.get(i));
+                }
             }
         }
         else {
@@ -131,16 +144,20 @@ public class Client {
             if(params.length != 2) {
                 System.out.println("Please input only Game ID and player color.");
             }
-
             else if (params[1].equals("white") || params[1].equals("black")) {
                 try {
-                    JoinGameRequest req = new JoinGameRequest(Integer.parseInt(params[0]), params[1]);
-                    server.join(req);
-                    System.out.println("Joined game.");
-                    if (params[1].equals("white")){
-                        printG(out, false);
+                    if (Integer.parseInt(params[0]) > gameDataArrayList.size() || Integer.parseInt(params[0]) - 1 < 0) {
+                        System.out.println("Invalid gameID.");
                     } else {
-                        printG(out, true);
+                        int gameid = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
+                        JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
+                        server.join(req);
+                        System.out.println("Joined game.");
+                        if (params[1].equals("white")){
+                            printG(out, false);
+                        } else {
+                            printG(out, true);
+                        }
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please input a valid gameID");
@@ -187,11 +204,18 @@ public class Client {
     public void prompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + state +" >>>" + SET_TEXT_COLOR_GREEN);
     }
-    private void printHorizontalBorder(PrintStream out) {
+    private void printHorizontalBorder(PrintStream out, boolean black) {
         drawSquare(out, null, null, null);
-        for (int i = 0; i<8; i++) {
-            drawSquare(out, null, null, (char)('A' + i));
+        if (black) {
+            for (int i = 7; i>=0; i--) {
+                drawSquare(out, null, null, (char)('A' + i));
+            }
+        } else {
+            for (int i = 0; i<8; i++) {
+                drawSquare(out, null, null, (char)('A' + i));
+            }
         }
+
         drawSquare(out, null, null, null);
         out.println(RESET_BG_COLOR);
     }
@@ -228,35 +252,36 @@ public class Client {
     }
 
     private void printG(PrintStream out, boolean black) { //needs to flip black, white good
-        printHorizontalBorder(out);
         if (black) { //Ascends from 1
+            printHorizontalBorder(out, true);
             for (int boardRow = 0; boardRow < 8; ++boardRow) {
                 drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 7; boardCol >= 0; --boardCol) {
                     if ((boardRow + boardCol) % 2 == 0) {
-                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    } else {
                         drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    } else {
+                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
                     }
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
             }
-            printHorizontalBorder(out);
+            printHorizontalBorder(out, true);
         } else{ //Descends from 8
+            printHorizontalBorder(out, false);
             for (int boardRow = 7; boardRow >= 0; --boardRow) {
                 drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 0; boardCol < 8; ++boardCol) {
                     if ((boardRow + boardCol) % 2 == 0) {
-                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    } else {
                         drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
+                    } else {
+                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
                     }
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
             }
-            printHorizontalBorder(out);
+            printHorizontalBorder(out, false);
         }
     }
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {

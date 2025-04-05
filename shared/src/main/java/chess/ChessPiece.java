@@ -287,14 +287,14 @@ public class ChessPiece {
         }
     }
 
-    private static boolean rookMove(ChessBoard board, ChessPosition myPosition, int col, Collection<ChessMove> answers, ChessGame.TeamColor color, int i) {
+    private static boolean rookMove(ChessBoard board, ChessPosition pos, int col, Collection<ChessMove> answers, ChessGame.TeamColor color, int i) {
         if (board.getPiece(i, col) == null) {
             ChessPosition spot = new ChessPosition(i, col);
-            ChessMove answer = new ChessMove(myPosition, spot, null);
+            ChessMove answer = new ChessMove(pos, spot, null);
             answers.add(answer);
         } else if (board.getPiece(i, col).getTeamColor() != color) {
             ChessPosition spot = new ChessPosition(i, col);
-            ChessMove answer = new ChessMove(myPosition, spot, null);
+            ChessMove answer = new ChessMove(pos, spot, null);
             answers.add(answer);
             return true;
         } else if (board.getPiece(i, col).getTeamColor() == color) {

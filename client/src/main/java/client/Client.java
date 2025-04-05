@@ -149,15 +149,7 @@ public class Client {
                     if (Integer.parseInt(params[0]) > gameDataArrayList.size() || Integer.parseInt(params[0]) - 1 < 0) {
                         System.out.println("Invalid gameID.");
                     } else {
-                        int gameid = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
-                        JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
-                        server.join(req);
-                        System.out.println("Joined game.");
-                        if (params[1].equals("white")){
-                            printG(out, false);
-                        } else {
-                            printG(out, true);
-                        }
+                        joinGame(params);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please input a valid gameID");
@@ -169,6 +161,19 @@ public class Client {
             System.out.println("Not currently logged in.");
         }
     }
+
+    private void joinGame(String[] params) {
+        int gameid = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
+        JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
+        server.join(req);
+        System.out.println("Joined game.");
+        if (params[1].equals("white")){
+            printG(out, false);
+        } else {
+            printG(out, true);
+        }
+    }
+
     public void observe(String... params) {
         if(state == state.SIGNEDIN) {
             if(params.length != 1) {
@@ -255,13 +260,10 @@ public class Client {
         if (black) { //Ascends from 1
             printHorizontalBorder(out, true);
             for (int boardRow = 0; boardRow < 8; ++boardRow) {
-                drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
+                drawSquare(out, null, null, (char) (boardRow + 49));
+                //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 7; boardCol >= 0; --boardCol) {
-                    if ((boardRow + boardCol) % 2 == 0) {
-                        drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    } else {
-                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    }
+                    makeTile(out, boardRow, boardCol);
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
@@ -270,13 +272,10 @@ public class Client {
         } else{ //Descends from 8
             printHorizontalBorder(out, false);
             for (int boardRow = 7; boardRow >= 0; --boardRow) {
-                drawSquare(out, null, null, (char) (boardRow + 49)); //Using ascii interpretation, int converted to char of set number
+                drawSquare(out, null, null, (char) (boardRow + 49));
+                //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 0; boardCol < 8; ++boardCol) {
-                    if ((boardRow + boardCol) % 2 == 0) {
-                        drawSquare(out, Color.black, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    } else {
-                        drawSquare(out, Color.white, convertCol(board.getPiece(boardRow + 1, boardCol + 1)), convert(board.getPiece(boardRow + 1, boardCol + 1)));
-                    }
+                    makeTile(out, boardRow, boardCol);
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
@@ -284,6 +283,17 @@ public class Client {
             printHorizontalBorder(out, false);
         }
     }
+
+    private void makeTile(PrintStream out, int boardRow, int boardCol) {
+        Color pieceColor = convertCol(board.getPiece(boardRow + 1, boardCol + 1));
+        char piece = convert(board.getPiece(boardRow + 1, boardCol + 1));
+        if ((boardRow + boardCol) % 2 == 0) {
+            drawSquare(out, Color.black, pieceColor, piece);
+        } else {
+            drawSquare(out, Color.white, pieceColor, piece);
+        }
+    }
+
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {
         if (squareColor == Color.WHITE){
             out.print(SET_BG_COLOR_LIGHT_GREY);

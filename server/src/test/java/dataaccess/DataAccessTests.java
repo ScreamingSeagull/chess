@@ -3,7 +3,7 @@ package dataaccess;
 import org.junit.jupiter.api.BeforeEach;
 import server.Server;
 
-public class dataAccessTests {
+public class DataAccessTests {
     private static Server server;
 
     @BeforeEach

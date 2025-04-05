@@ -22,7 +22,7 @@ public class UserService {
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, ServiceException { //400=bad request=DataAccessException
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, ServiceException {
         UserData udata = udao.getUser(registerRequest.username());
         if (udata != null) {
             throw new ServiceException(403, "Error: already taken"); //403=already taken

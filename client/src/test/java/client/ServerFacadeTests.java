@@ -63,7 +63,7 @@ public class ServerFacadeTests {
     }
     @Test
     public void badLogout() throws ResponseException {
-        serverFacade.register(new RegisterRequest("username", "password", "email")); //Does not login, will need to change if autologin enabled in future
+        serverFacade.register(new RegisterRequest("username", "password", "email"));
         serverFacade.logout();
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.logout());
     }

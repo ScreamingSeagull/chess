@@ -37,7 +37,7 @@ public class GameService {
         //returns 500 if description
     }
     public void joinGame(JoinGameRequest joinRequest, String authToken) throws DataAccessException, ServiceException {
-        GameData gameData = gdao.getGame(joinRequest.gameID()); //IT IS ACTUALLY GETTING THE GAME, RIGHT? ******************************************************
+        GameData gameData = gdao.getGame(joinRequest.gameID());
         GameData updatedGame;
         if (gameData == null || joinRequest.playerColor() == null || joinRequest.playerColor().isEmpty()) {
             throw new ServiceException(400, "Error: bad request");
@@ -53,7 +53,7 @@ public class GameService {
             updatedGame = new GameData(gameData.gameID(), authData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game());
 
         }
-        else if (joinRequest.playerColor().equals("BLACK") || joinRequest.playerColor().equals("Black") || joinRequest.playerColor().equals("black")) {
+        else if(joinRequest.playerColor().equals("BLACK")||joinRequest.playerColor().equals("Black")||joinRequest.playerColor().equals("black")){
             if (gameData.blackUsername() != null){
                 throw new ServiceException(403, "Error: already taken");
             }

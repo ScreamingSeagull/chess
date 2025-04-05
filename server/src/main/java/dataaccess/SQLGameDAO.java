@@ -40,7 +40,11 @@ public class SQLGameDAO extends SqlDAO implements GameDAO{
                 ps.setInt(1, gameID);
                 try (var ns = ps.executeQuery()) {
                     if (ns.next()) {
-                        return new GameData(ns.getInt("gameID"), ns.getString("whiteUsername"), ns.getString("blackUsername"), ns.getString("gameName"), new Gson().fromJson(ns.getString("game"), ChessGame.class));
+                        int id = ns.getInt("gameID");
+                        String wUser = ns.getString("whiteUsername");
+                        String bUser = ns.getString("blackUsername");
+                        String gameName = ns.getString("gameName");
+                        return new GameData(id,wUser,bUser,gameName,new Gson().fromJson(ns.getString("game"),ChessGame.class));
                     }
                     return null;
                 }
@@ -56,7 +60,11 @@ public class SQLGameDAO extends SqlDAO implements GameDAO{
             try(PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (var ns = ps.executeQuery()) {
                     while (ns.next()) {
-                        games.add(new GameData(ns.getInt("gameID"), ns.getString("whiteUsername"), ns.getString("blackUsername"), ns.getString("gameName"), new Gson().fromJson(ns.getString("game"), ChessGame.class)));
+                        int id = ns.getInt("gameID");
+                        String wUser = ns.getString("whiteUsername");
+                        String bUser = ns.getString("blackUsername");
+                        String gameName = ns.getString("gameName");
+                        games.add(new GameData(id, wUser, bUser, gameName, new Gson().fromJson(ns.getString("game"), ChessGame.class)));
                     }
 
                 }

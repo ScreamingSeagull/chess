@@ -117,14 +117,20 @@ public class ChessGame {
             current.changeRow(i);
             for (int j = 1; j <=8; j++){
                 current.changeColumn(j); //Traverses board
-                if(board.getPiece(current) != null) {
-                    Collection<ChessMove> possibleattack = board.getPiece(current).pieceMoves(board, current); //Collects possible attacks for pieces
-                    for (ChessMove attack : possibleattack) {
-                        if (attack.getEndPosition().equals(kingpos)) { //If this attack is true and the King can still move out of the way
-                            return true;
-                        }
-                    }
+                if (canItCheck(board.getPiece(current) != null, board, current, kingpos, true)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
+    private static boolean canItCheck(boolean board, ChessBoard board1, ChessPosition current, ChessPosition kingpos, boolean x) {
+        if (board) {
+            Collection<ChessMove> possibleattack = board1.getPiece(current).pieceMoves(board1, current); //Collects possible attacks for pieces
+            for (ChessMove attack : possibleattack) {
+                if (attack.getEndPosition().equals(kingpos)) { //If this attack is true and the King can still move out of the way
+                    return true;
                 }
             }
         }
@@ -147,38 +153,55 @@ public class ChessGame {
         if (isInCheck(teamColor, board) && actualmoves.isEmpty()) { //IF IN CHECK
             ChessPosition attacker = new ChessPosition(0, 0); //ATTACKER INTENTIONALLY USING OUT OF BOUNDS INDEXES, SHOULD CHANGE AUTOMATICALLY IF IN CHECK
             ChessPosition current = new ChessPosition(1, 1);
-            for (int i = 1; i <=8; i++){
-                current.changeRow(i);
-                for (int j = 1; j <=8; j++){
-                    current.changeColumn(j); //Traverses board
-                    if(board.getPiece(current) != null) {
-                        if (checkmateCheck(board, current, kingpos, attacker)) {
-                            return true;
-                        }
+            if (boardCheck(board, current, kingpos, attacker)) {
+                return true;
+            }
+            return !counterAttackChecker(teamColor, board, current, attacker); //Returns true if can block attack, switch to inverse to return checkmate status
+        }
+        return false; //If not in check
+    }
+
+    private static boolean boardCheck(ChessBoard board, ChessPosition current, ChessPosition kingpos, ChessPosition attacker) {
+        for (int i = 1; i <=8; i++){
+            current.changeRow(i);
+            for (int j = 1; j <=8; j++){
+                current.changeColumn(j); //Traverses board
+                if(board.getPiece(current) != null) {
+                    if (checkmateCheck(board, current, kingpos, attacker)) {
+                        return true;
                     }
                 }
             }
-            ChessBoard tempboard = new ChessBoard();
-            copyboard(board, tempboard);
-            for (int i = 1; i <=8; i++){
-                current.changeRow(i);
-                for (int j = 1; j <=8; j++){
-                    current.changeColumn(j);
-                    if(tempboard.getPiece(current) != null && tempboard.getPiece(current).getTeamColor() == teamColor) {
-                        Collection<ChessMove> defense = tempboard.getPiece(current).pieceMoves(tempboard, current);
-                        for (ChessMove attack : defense) {
-                            if (attack.getEndPosition().equals(attacker)) {
-                                ChessBoard temp2 = new ChessBoard();
-                                copyboard(tempboard, temp2);
-                                doMove(attack, temp2);
-                                if (isInCheck(teamColor, temp2)) {return true;}
-                                return false;
-                            }
-                        }
+        }
+        return false;
+    }
+
+    private boolean counterAttackChecker(TeamColor teamColor, ChessBoard board, ChessPosition current, ChessPosition attacker) {
+        ChessBoard tempboard = new ChessBoard();
+        copyboard(board, tempboard);
+        for (int i = 1; i <=8; i++){
+            current.changeRow(i);
+            for (int j = 1; j <=8; j++){
+                current.changeColumn(j);
+                if(tempboard.getPiece(current) != null && tempboard.getPiece(current).getTeamColor() == teamColor) {
+                    if(counterAttack(teamColor, tempboard, current, attacker)) {
+                        return true;
                     }
                 }
             }
-            return true; //Misplaced this return true statement way too far up, wasn't cycling through everything
+        }
+        return false;
+    }
+
+    private boolean counterAttack(TeamColor teamColor, ChessBoard tempboard, ChessPosition current, ChessPosition attacker) {
+        Collection<ChessMove> defense = tempboard.getPiece(current).pieceMoves(tempboard, current);
+        for (ChessMove counterAttack : defense) {
+            if (counterAttack.getEndPosition().equals(attacker)) {
+                ChessBoard temp2 = new ChessBoard();
+                copyboard(tempboard, temp2);
+                doMove(counterAttack, temp2);
+                return !isInCheck(teamColor, temp2);
+            }
         }
         return false;
     }
@@ -207,13 +230,8 @@ public class ChessGame {
             current.changeRow(i);
             for (int j = 1; j <=8; j++){
                 current.changeColumn(j);
-                if(tempboard.getPiece(current) != null && tempboard.getPiece(current).getTeamColor() != color) {
-                    Collection<ChessMove> possibleattack = tempboard.getPiece(current).pieceMoves(tempboard, current);
-                    for (ChessMove attack : possibleattack) {
-                        if (attack.getEndPosition().equals(move.getEndPosition())) { //If the King enters a check/checkmate position
-                            return false;
-                        }
-                    }
+                if (canItCheck(tempboard.getPiece(current) != null && tempboard.getPiece(current).getTeamColor() != color, tempboard, current, move.getEndPosition(), false)) {
+                    return false;
                 }
             }
         }

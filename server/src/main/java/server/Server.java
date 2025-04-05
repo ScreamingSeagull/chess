@@ -27,7 +27,6 @@ public class Server {
         appService = new AppService(userDAO, authDAO, gameDAO);
         authService = new AuthService(userDAO, authDAO, gameDAO);
         gameService = new GameService(userDAO, authDAO, gameDAO);
-
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         Spark.delete("/db", this::clearApp);
@@ -39,7 +38,6 @@ public class Server {
         Spark.put("/game", this::joinGame);
         Spark.exception(DataAccessException.class, this::errorHandler);
         Spark.exception(ServiceException.class, this::serviceErrorHandler);
-
         Spark.awaitInitialization();
         return Spark.port();
     }

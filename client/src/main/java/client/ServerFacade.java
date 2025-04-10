@@ -2,13 +2,10 @@ package client;
 import chess.ChessMove;
 import client.http.HttpComms;
 import client.websocket.WebSocketComms;
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.request.*;
 import model.result.*;
-import websocket.commands.Connect;
-import websocket.commands.Observe;
-
+import websocket.commands.*;
 import javax.websocket.MessageHandler;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -60,12 +57,12 @@ public class ServerFacade {
         webSocketComms.sendMessage(new Observe(gameID, authToken));
     }
     public void chessMove(int gameID, ChessMove move) {
-
+        webSocketComms.sendMessage(new MakeMove(gameID, authToken, move));
     }
     public void resign(int gameID) { //DOES NOT LEAVE GAME
-
+        webSocketComms.sendMessage(new Resign(authToken, gameID));
     }
     public void leaveGame(int gameID){
-
+        webSocketComms.sendMessage(new Leave(authToken, gameID));
     }
 }

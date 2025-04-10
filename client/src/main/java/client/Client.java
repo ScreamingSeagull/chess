@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import com.sun.nio.sctp.NotificationHandler;
 import exception.ResponseException;
 import model.GameData;
 import model.request.JoinGameRequest;
@@ -24,7 +25,7 @@ public class Client {
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
     ArrayList<GameData> gameDataArrayList = new ArrayList<>();
-    public Client(String domainName) throws URISyntaxException, IOException {
+    public Client(String domainName, String serverUrl, NotificationHandler notificationHandler) throws URISyntaxException, IOException {
         server = new ServerFacade(domainName);
         board.resetBoard();
     }

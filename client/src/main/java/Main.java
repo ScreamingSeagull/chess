@@ -12,6 +12,7 @@ public class Main {
         if (args.length >= 1) {
             domainName = args[0];
         }
-        new Repl(domainName).run();
+        var serverUrl = "http://localhost:8080";
+        new Repl(domainName, serverUrl).run();
     }
 }

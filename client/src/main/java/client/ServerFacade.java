@@ -55,10 +55,10 @@ public class ServerFacade {
         httpComms.join(req, authToken);
         webSocketComms.sendMessage(new Connect(req.gameID(), req.playerColor(), authToken));
     }
-    public void chessMove(int gameID, ChessMove move) {
+    public void observeGame(int gameID){
 
     }
-    public void observeGame(int gameID){
+    public void chessMove(int gameID, ChessMove move) {
 
     }
     public void resign(int gameID) { //DOES NOT LEAVE GAME

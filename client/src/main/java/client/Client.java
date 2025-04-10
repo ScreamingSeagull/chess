@@ -2,6 +2,7 @@ package client;
 
 import chess.*;
 
+import client.websocket.WebSocketComms;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
@@ -22,17 +23,19 @@ import java.util.Arrays;
 import static ui.EscapeSequences.*;
 
 public class Client implements MessageHandler.Whole<String> {
-    private final ServerFacade server;
+    private final ServerFacade serverFacade;
     private final String serverUrl;
     private GameData currentGame = null;
     private State state = State.SIGNEDOUT;
     private boolean black = false;
+
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
     ArrayList<GameData> gameDataArrayList = new ArrayList<>();
-    public Client(String domainName, String serverUrl) throws URISyntaxException, IOException {
+
+    public Client(String serverUrl) throws URISyntaxException, IOException {
         this.serverUrl = serverUrl;
-        server = new ServerFacade(domainName, this);
+        serverFacade = new ServerFacade(serverUrl, this);
         board.resetBoard();
     }
     public void eval(String input) {
@@ -65,7 +68,7 @@ public class Client implements MessageHandler.Whole<String> {
         }
     }
     public void clearDB() {
-        server.clearDB();
+        serverFacade.clearDB();
         System.out.println("All databases wiped.");
         state = State.SIGNEDOUT;
     }
@@ -74,10 +77,11 @@ public class Client implements MessageHandler.Whole<String> {
             if (params.length != 3){
                 System.out.println("Username, Password, and Email not provided.");
             } else{
-                RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]); //Check parameters
-                server.register(req);
+                RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
+                serverFacade.register(req);
                 login(params[0], params[1]);
-                System.out.println("Successfully registered."); //Call login to auto login after registration?
+                System.out.println("Successfully registered.");
+                state = State.SIGNEDIN;
             }
         }
         else {
@@ -86,8 +90,8 @@ public class Client implements MessageHandler.Whole<String> {
     }
     public void login(String... params) {
         if (state.equals(State.SIGNEDOUT)){
-            LoginRequest req = new LoginRequest(params[0], params[1]); //Check parameters
-            server.login(req);
+            LoginRequest req = new LoginRequest(params[0], params[1]);
+            serverFacade.login(req);
             state = State.SIGNEDIN;
             System.out.println("Logged in.");
         }
@@ -103,7 +107,7 @@ public class Client implements MessageHandler.Whole<String> {
     }
     public void logout(){
         if (state.equals(State.SIGNEDIN)){
-            server.logout();
+            serverFacade.logout();
             state = State.SIGNEDOUT;
             System.out.println("Logged out.");
         }
@@ -112,7 +116,7 @@ public class Client implements MessageHandler.Whole<String> {
         }
     }
     public void createList(){
-        ListGamesResult res = server.list();
+        ListGamesResult res = serverFacade.list();
         gameDataArrayList.clear();
         gameDataArrayList.addAll(res.games());
     }
@@ -122,7 +126,7 @@ public class Client implements MessageHandler.Whole<String> {
             if (gameDataArrayList.isEmpty()) {
                 System.out.println("No current games.");
             } else {
-                System.out.println("All games:"); //Convert between game ID and number in list
+                System.out.println("All games:"); //Converts between game ID and number in list
                 for (int i = 0; i < gameDataArrayList.size(); i++) {
                     System.out.println("Chess game " + (i+1) + ": " + gameDataArrayList.get(i));
                 }
@@ -138,7 +142,7 @@ public class Client implements MessageHandler.Whole<String> {
                 System.out.println("Only enter the name of the game you wish to create.");
             }
             else{
-                server.create(params[0]);
+                serverFacade.create(params[0]);
                 System.out.println("Created new chess game " + params[0]);
             }
         }
@@ -174,12 +178,12 @@ public class Client implements MessageHandler.Whole<String> {
     private void joinGame(String[] params) {
         int gameid = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
         JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
-        server.join(req);
+        serverFacade.join(req);
         System.out.println("Joined game.");
-        if (params[1].equals("white")){
-            printG(out, false);
+        if (params[1].equals("white")){ //Needs to print the game?
+            //printG(out, false);
         } else {
-            printG(out, true);
+            //printG(out, true);
         }
     }
 
@@ -192,7 +196,7 @@ public class Client implements MessageHandler.Whole<String> {
             try {
                 int game = Integer.parseInt(params[0]);
                 System.out.println("Now watching game number " + params[0]);
-                printG(out, false);
+                //printG(out, false); enable proper game viewing
             } catch (NumberFormatException e) {
                 System.out.println("Please input a valid gameID");
             }
@@ -347,7 +351,7 @@ public class Client implements MessageHandler.Whole<String> {
                 break;
             }
             case ERROR: {
-                printError(new Gson().fromJson(s, Error.class));
+                printError(new Gson().fromJson(s, ServerError.class));
                 break;
             }
         }
@@ -360,7 +364,7 @@ public class Client implements MessageHandler.Whole<String> {
         printG(out, black, message.getGame());
         prompt();
     }
-    public void printError(Error message){
+    public void printError(ServerError message){
         out.print(SET_TEXT_COLOR_RED + "ERROR: " + message.getMessage());
         prompt();
     }

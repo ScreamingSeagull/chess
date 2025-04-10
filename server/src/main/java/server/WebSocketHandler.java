@@ -2,13 +2,13 @@ package server;
 
 import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
 import websocket.commands.*;
 import websocket.commands.UserGameCommand;
-
 
 @WebSocket
 public class WebSocketHandler {
@@ -40,7 +40,9 @@ public class WebSocketHandler {
         }
     }
     private void joinGame(Connection connection, Connect message) {
-
+        try {
+            GameData game = GameDAO.getGame(message.getGameID());
+        }
     }
     private void watchGame(Connection connection, Observe message) {
 

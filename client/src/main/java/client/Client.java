@@ -2,15 +2,15 @@ package client;
 
 import chess.*;
 
-import client.websocket.NotificationHandler;
+import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.ListGamesResult;
-import websocket.Notification;
-
+import websocket.messages.*;
+import javax.websocket.MessageHandler;
 import java.nio.charset.StandardCharsets;
 import java.awt.*;
 import java.io.IOException;
@@ -21,10 +21,12 @@ import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
-public class Client implements NotificationHandler {
+public class Client implements MessageHandler.Whole<String> {
     private final ServerFacade server;
     private final String serverUrl;
+    private GameData currentGame = null;
     private State state = State.SIGNEDOUT;
+    private boolean black = false;
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
     ArrayList<GameData> gameDataArrayList = new ArrayList<>();
@@ -53,7 +55,7 @@ public class Client implements NotificationHandler {
                 case "create"->create(params);
                 case "join"->join(params);
                 case "help" ->help();
-                case "print" ->printG(out, true);
+                case "print" ->printG(out, false, null);
                 case "watch" ->observe(params);
                 case "quit" ->quitLogout();
                 default -> System.out.println("Incorrect command entered.");
@@ -150,6 +152,8 @@ public class Client implements NotificationHandler {
                 System.out.println("Please input only Game ID and player color.");
             }
             else if (params[1].equals("white") || params[1].equals("black")) {
+                if (params[1].equals("white")) {black = false;} //Remember to set back to false when leaving
+                else {black = true;}
                 try {
                     if (Integer.parseInt(params[0]) > gameDataArrayList.size() || Integer.parseInt(params[0]) - 1 < 0) {
                         System.out.println("Invalid gameID.");
@@ -181,6 +185,7 @@ public class Client implements NotificationHandler {
 
     public void observe(String... params) {
         if(state == state.SIGNEDIN) {
+            black = false;
             if(params.length != 1) {
                 System.out.println("Please input only Game ID");
             }
@@ -260,15 +265,14 @@ public class Client implements NotificationHandler {
             return Color.BLACK;
         }
     }
-
-    private void printG(PrintStream out, boolean black) { //needs to flip black, white good
+    private void printG(PrintStream out, boolean black, GameData game) {
         if (black) { //Ascends from 1
             printHorizontalBorder(out, true);
             for (int boardRow = 0; boardRow < 8; ++boardRow) {
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 7; boardCol >= 0; --boardCol) {
-                    makeTile(out, boardRow, boardCol);
+                    makeTile(out, boardRow, boardCol, game);
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
@@ -280,7 +284,7 @@ public class Client implements NotificationHandler {
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 //Using ascii interpretation, int converted to char of set number
                 for (int boardCol = 0; boardCol < 8; ++boardCol) {
-                    makeTile(out, boardRow, boardCol);
+                    makeTile(out, boardRow, boardCol, game);
                 }
                 drawSquare(out, null, null, (char) (boardRow + 49));
                 out.println(RESET_BG_COLOR);
@@ -288,17 +292,24 @@ public class Client implements NotificationHandler {
             printHorizontalBorder(out, false);
         }
     }
+    private void makeTile(PrintStream out, int boardRow, int boardCol, GameData game){
+        if(game == null) {
+            tileCreate(out, boardRow, boardCol, board);
+        }
+        else {
+            tileCreate(out, boardRow, boardCol, game.game().getBoard());
+        }
 
-    private void makeTile(PrintStream out, int boardRow, int boardCol) {
-        Color pieceColor = convertCol(board.getPiece(boardRow + 1, boardCol + 1));
-        char piece = convert(board.getPiece(boardRow + 1, boardCol + 1));
+    }
+    private void tileCreate(PrintStream out, int boardRow, int boardCol, ChessBoard chessBoard) {
+        Color pieceColor = convertCol(chessBoard.getPiece(boardRow + 1, boardCol + 1));
+        char piece = convert(chessBoard.getPiece(boardRow + 1, boardCol + 1));
         if ((boardRow + boardCol) % 2 == 0) {
             drawSquare(out, Color.black, pieceColor, piece);
         } else {
             drawSquare(out, Color.white, pieceColor, piece);
         }
     }
-
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {
         if (squareColor == Color.WHITE){
             out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -322,8 +333,35 @@ public class Client implements NotificationHandler {
     }
 
     @Override
-    public void notify(Notification notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.toString()); //Originally meant to be message, not toString
+    public void onMessage(String s) {
+        ServerMessage msg = new Gson().fromJson(s, ServerMessage.class);
+        switch (msg.getServerMessageType()) {
+            case NOTIFICATION: {
+                printNotification(new Gson().fromJson(s, Notification.class));
+                break;
+            }
+            case LOAD_GAME: {
+                LoadGame loadGame = new Gson().fromJson(s, LoadGame.class);
+                currentGame = loadGame.getGame();
+                printGame(loadGame);
+                break;
+            }
+            case ERROR: {
+                printError(new Gson().fromJson(s, Error.class));
+                break;
+            }
+        }
+    }
+    public void printNotification(Notification message) {
+        out.print(SET_TEXT_COLOR_BLUE + message.getMessage());
+        prompt();
+    }
+    public void printGame(LoadGame message) {
+        printG(out, black, message.getGame());
+        prompt();
+    }
+    public void printError(Error message){
+        out.print(SET_TEXT_COLOR_RED + "ERROR: " + message.getMessage());
         prompt();
     }
 }

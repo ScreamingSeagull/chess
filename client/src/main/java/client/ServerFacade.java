@@ -1,10 +1,11 @@
 package client;
-
-import client.websocket.NotificationHandler;
+import client.websocket.WebSocketComms;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.request.*;
 import model.result.*;
+
+import javax.websocket.MessageHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,12 +18,13 @@ import java.util.HashMap;
 
 public class ServerFacade {
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
+    private final MessageHandler.Whole<String> messageHandler;
+    private WebSocketComms webSocketFacade;
     String authToken;
 
-    public ServerFacade(String domainName, NotificationHandler notificationHandler) throws URISyntaxException, IOException {
+    public ServerFacade(String domainName, MessageHandler.Whole<String> messageHandler) throws URISyntaxException, IOException {
         this.serverUrl = domainName;
-        this.notificationHandler = notificationHandler;
+        this.messageHandler = messageHandler;
     }
 
     private<T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException{

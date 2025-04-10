@@ -1,9 +1,5 @@
 package client;
 
-import client.websocket.NotificationHandler;
-import com.sun.nio.sctp.HandlerResult;
-import com.sun.nio.sctp.Notification;
-
 import java.util.Scanner;
 import java.io.IOException;
 import java.net.URISyntaxException;

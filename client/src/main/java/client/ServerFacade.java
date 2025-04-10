@@ -15,15 +15,14 @@ import java.net.URL;
 import java.util.HashMap;
 
 public class ServerFacade {
-    private final String domainName;
-    HttpURLConnection http;
+    private final String serverUrl;
     String authToken;
     public ServerFacade(String domainName) throws URISyntaxException, IOException {
-        this.domainName = domainName;
+        this.serverUrl = domainName;
     }
     private<T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException{
         try{
-            URL url = (new URI(domainName + path)).toURL();
+            URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);

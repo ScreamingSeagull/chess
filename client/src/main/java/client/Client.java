@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import client.websocket.WebSocketFacade;
 import com.sun.nio.sctp.NotificationHandler;
 import exception.ResponseException;
 import model.GameData;
@@ -21,6 +22,7 @@ import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
+    private WebSocketFacade ws;
     private State state = State.SIGNEDOUT;
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();

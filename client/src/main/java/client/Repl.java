@@ -34,7 +34,7 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(Notification notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.toString());
+        System.out.println(SET_TEXT_COLOR_RED + notification.toString()); //Originally meant to be message, not toString
         command.prompt();
     }
 

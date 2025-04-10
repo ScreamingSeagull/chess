@@ -24,11 +24,11 @@ public class WebSocketComms extends Endpoint {
         }
     }
     public void send(String msg) throws IOException {
-        this.session.getBasicRemote().sendText(msg);
+        session.getBasicRemote().sendText(msg);
     }
     public void sendMessage(UserGameCommand message) throws ResponseException {
         try {
-            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+            session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }

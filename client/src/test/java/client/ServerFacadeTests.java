@@ -6,6 +6,8 @@ import model.result.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import javax.websocket.MessageHandler;
+
 
 public class ServerFacadeTests {
 
@@ -17,7 +19,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        serverFacade = new ServerFacade("http://localhost:" + port, null);
+        serverFacade = new ServerFacade("localhost:" + port, (ServerMessage) -> {});
     }
 
     @AfterAll

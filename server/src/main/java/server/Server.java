@@ -1,6 +1,5 @@
 package server;
 import java.util.Map;
-
 import spark.*;
 import dataaccess.*;
 import com.google.gson.Gson;
@@ -29,6 +28,11 @@ public class Server {
         gameService = new GameService(userDAO, authDAO, gameDAO);
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+        WebSocketHandler webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
+        Spark.exception(DataAccessException.class, this::errorHandler);
+        Spark.exception(ServiceException.class, this::serviceErrorHandler);
+        Spark.webSocket("/connect", webSocketHandler);
+
         Spark.delete("/db", this::clearApp);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
@@ -36,8 +40,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.exception(DataAccessException.class, this::errorHandler);
-        Spark.exception(ServiceException.class, this::serviceErrorHandler);
+
         Spark.awaitInitialization();
         return Spark.port();
     }

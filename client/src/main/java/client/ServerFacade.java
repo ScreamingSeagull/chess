@@ -1,10 +1,12 @@
 package client;
+import chess.ChessMove;
 import client.http.HttpComms;
 import client.websocket.WebSocketComms;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.request.*;
 import model.result.*;
+import websocket.commands.Connect;
 
 import javax.websocket.MessageHandler;
 import java.io.IOException;
@@ -51,6 +53,18 @@ public class ServerFacade {
     }
     public void join(JoinGameRequest req) {
         httpComms.join(req, authToken);
-        webSocketComms.sendMessage(new Connect);
+        webSocketComms.sendMessage(new Connect(req.gameID(), req.playerColor(), authToken));
+    }
+    public void chessMove(int gameID, ChessMove move) {
+
+    }
+    public void observeGame(int gameID){
+
+    }
+    public void resign(int gameID) { //DOES NOT LEAVE GAME
+
+    }
+    public void leaveGame(int gameID){
+
     }
 }

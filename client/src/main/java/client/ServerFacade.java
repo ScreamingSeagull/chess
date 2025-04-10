@@ -7,6 +7,7 @@ import exception.ResponseException;
 import model.request.*;
 import model.result.*;
 import websocket.commands.Connect;
+import websocket.commands.Observe;
 
 import javax.websocket.MessageHandler;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class ServerFacade {
         webSocketComms.sendMessage(new Connect(req.gameID(), req.playerColor(), authToken));
     }
     public void observeGame(int gameID){
-
+        webSocketComms.sendMessage(new Observe(gameID, authToken));
     }
     public void chessMove(int gameID, ChessMove move) {
 

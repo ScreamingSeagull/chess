@@ -1,5 +1,6 @@
 package client;
 
+import client.websocket.NotificationHandler;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.request.*;
@@ -16,10 +17,14 @@ import java.util.HashMap;
 
 public class ServerFacade {
     private final String serverUrl;
+    private final NotificationHandler notificationHandler;
     String authToken;
-    public ServerFacade(String domainName) throws URISyntaxException, IOException {
+
+    public ServerFacade(String domainName, NotificationHandler notificationHandler) throws URISyntaxException, IOException {
         this.serverUrl = domainName;
+        this.notificationHandler = notificationHandler;
     }
+
     private<T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException{
         try{
             URL url = (new URI(serverUrl + path)).toURL();

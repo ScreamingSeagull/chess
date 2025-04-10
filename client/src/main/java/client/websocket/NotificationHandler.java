@@ -1,5 +1,6 @@
 package client.websocket;
-import javax.management.Notification;
+
+import websocket.Notification;
 
 public interface NotificationHandler {
     void notify(Notification notification);

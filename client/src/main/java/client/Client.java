@@ -1,14 +1,15 @@
 package client;
 
 import chess.*;
-import client.websocket.WebSocketFacade;
-import com.sun.nio.sctp.NotificationHandler;
+
+import client.websocket.NotificationHandler;
 import exception.ResponseException;
 import model.GameData;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.ListGamesResult;
+import websocket.Notification;
 
 import java.nio.charset.StandardCharsets;
 import java.awt.*;
@@ -20,18 +21,19 @@ import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
-public class Client {
+public class Client implements NotificationHandler {
     private final ServerFacade server;
-    private WebSocketFacade ws;
+    private final String serverUrl;
     private State state = State.SIGNEDOUT;
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
     ArrayList<GameData> gameDataArrayList = new ArrayList<>();
-    public Client(String domainName, String serverUrl, NotificationHandler notificationHandler) throws URISyntaxException, IOException {
-        server = new ServerFacade(domainName);
+    public Client(String domainName, String serverUrl) throws URISyntaxException, IOException {
+        this.serverUrl = serverUrl;
+        server = new ServerFacade(domainName, this);
         board.resetBoard();
     }
-    public void eval(String input) { //This needs to return data of differing kinds, condense into json?
+    public void eval(String input) {
         String[] line = input.toLowerCase().split(" ");
         String cmd;
         if (line.length == 0) {
@@ -317,5 +319,11 @@ public class Client {
         } else {
             out.print("\u2005\u2005" + c + "\u2005\u2005");
             }
+    }
+
+    @Override
+    public void notify(Notification notification) {
+        System.out.println(SET_TEXT_COLOR_RED + notification.toString()); //Originally meant to be message, not toString
+        prompt();
     }
 }

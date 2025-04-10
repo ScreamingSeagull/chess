@@ -1,20 +1,20 @@
 package client;
 
+import client.websocket.NotificationHandler;
 import com.sun.nio.sctp.HandlerResult;
 import com.sun.nio.sctp.Notification;
-import com.sun.nio.sctp.NotificationHandler;
 
+import java.util.Scanner;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 
 
-public class Repl implements NotificationHandler {
+public class Repl {
     private final Client command;
     public Repl(String domainName, String serverUrl) throws URISyntaxException, IOException {
-        command = new Client(domainName, serverUrl, this);
+        command = new Client(domainName, serverUrl);
     }
     public void run() {
         System.out.println("Welcome to CS240 Chess");
@@ -31,15 +31,5 @@ public class Repl implements NotificationHandler {
     }
     private void prompt() {
         command.prompt();
-    }
-
-    public void notify(Notification notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.toString()); //Originally meant to be message, not toString
-        command.prompt();
-    }
-
-    @Override
-    public HandlerResult handleNotification(Notification notification, Object attachment) {
-        return null;
     }
 }

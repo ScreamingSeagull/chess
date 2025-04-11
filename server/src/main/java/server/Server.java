@@ -25,7 +25,6 @@ public class Server {
         } catch (DataAccessException e) {
             System.out.println("Server cannot start" + e.getMessage());
         }
-        System.out.println("TEst");
         userService = new UserService(userDAO, authDAO, gameDAO);
         appService = new AppService(userDAO, authDAO, gameDAO);
         authService = new AuthService(userDAO, authDAO, gameDAO);

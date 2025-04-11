@@ -10,10 +10,11 @@ import websocket.commands.UserGameCommand;
 
 
 public class WebSocketComms extends Endpoint {
-    Session session;
+    public Session session;
     public WebSocketComms(String url, MessageHandler.Whole<String> messageHandler) throws ResponseException {
         try {
-            URI uri = new URI(String.format("ws://%s/ws", url));
+            url = url.replace("http", "ws");
+            URI uri = new URI(url + "/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
             this.session.addMessageHandler(messageHandler);

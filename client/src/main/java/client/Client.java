@@ -26,6 +26,8 @@ public class Client implements MessageHandler.Whole<String> {
     private final String serverUrl;
     private GameData currentGame = null;
     private State state = State.SIGNEDOUT;
+    private State game = State.SIGNEDOUT; //used to see if in a  game
+    private int gameID = 0;
     private boolean black = false;
 
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -66,22 +68,23 @@ public class Client implements MessageHandler.Whole<String> {
                 default -> System.out.println("Incorrect command entered.");
             }
         } catch (ResponseException e) {
-            out.println(e.getMessage()); //999 error code because idk what the code is supposed to be
+            out.println("Unknown error. Please retry command."); //999 error code because idk what the code is supposed to be
         }
     }
     public void clearDB() {
         serverFacade.clearDB();
         System.out.println("All databases wiped.");
         state = State.SIGNEDOUT;
+        game = State.SIGNEDOUT;
+        gameID = 0;
     }
     public void register(String... params) {
         if (state.equals(State.SIGNEDOUT)){
             if (params.length != 3){
-                System.out.println("Username, Password, and Email not provided.");
+                System.out.println("Please provide Username, Password, and Email.");
             } else{
                 RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
                 serverFacade.register(req);
-                login(params[0], params[1]);
                 System.out.println("Successfully registered.");
                 state = State.SIGNEDIN;
             }
@@ -92,10 +95,14 @@ public class Client implements MessageHandler.Whole<String> {
     }
     public void login(String... params) {
         if (state.equals(State.SIGNEDOUT)){
-            LoginRequest req = new LoginRequest(params[0], params[1]);
-            serverFacade.login(req);
-            state = State.SIGNEDIN;
-            System.out.println("Logged in.");
+            if(params.length!=2){
+                System.out.println("Please provide a username and password.");
+            } else{
+                LoginRequest req = new LoginRequest(params[0], params[1]);
+                serverFacade.login(req);
+                state = State.SIGNEDIN;
+                System.out.println("Logged in.");
+            }
         }
         else {
             System.out.println("Already logged in.");
@@ -182,11 +189,7 @@ public class Client implements MessageHandler.Whole<String> {
         JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
         serverFacade.join(req);
         System.out.println("Joined game.");
-        if (params[1].equals("white")){ //Needs to print the game?
-            //printG(out, false);
-        } else {
-            //printG(out, true);
-        }
+        game = State.SIGNEDIN;
     }
     public void observe(String... params) {
         if(state == state.SIGNEDIN) {
@@ -208,13 +211,61 @@ public class Client implements MessageHandler.Whole<String> {
         }
     }
     public void makeMove(String... params) {
+        if(state == state.SIGNEDIN) {
+            if(game == state.SIGNEDIN){
+                if(params.length != 5){
+                    System.out.println("Please input a chess move: starting row and column ending row and column and promotion type (none if not available).");
+                } else{
+                    ChessPosition start = new ChessPosition(Integer.parseInt(params[0])-1, (params[1].charAt(0) - 'a'));
+                    ChessPosition end = new ChessPosition(Integer.parseInt(params[2])-1, (params[3].charAt(0) - 'a'));
+                    ChessPiece.PieceType type;
+                    switch (params[4]){
+                        case "knight"->type = ChessPiece.PieceType.KNIGHT;
+                        case "bishop"->type = ChessPiece.PieceType.BISHOP;
+                        case "rook"->type = ChessPiece.PieceType.ROOK;
+                        case "queen"->type = ChessPiece.PieceType.QUEEN;
+                        default -> type = null;
+                    }
+                    ChessMove move = new ChessMove(start, end, type);
+                    serverFacade.chessMove(gameID, move);
+                }
 
+            }
+            else {
+                System.out.println("Not currently in a game.");
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
     }
     public void resign(){
-
+        if(state == state.SIGNEDIN) {
+            if(game == state.SIGNEDIN){
+                serverFacade.resign(gameID);
+            }
+            else {
+                System.out.println("Not currently in a game.");
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
     }
     public void leaveGame(){
-
+        if(state == state.SIGNEDIN) {
+            if(game == state.SIGNEDIN){
+                serverFacade.leaveGame(gameID);
+                game = state.SIGNEDOUT;
+                gameID=0;
+            }
+            else {
+                System.out.println("Not currently in a game.");
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
     }
     public void help(){
         if (state == State.SIGNEDOUT) {
@@ -372,6 +423,7 @@ public class Client implements MessageHandler.Whole<String> {
         prompt();
     }
     public void printGame(LoadGame message) {
+        System.out.println("\n");
         printG(out, black, message.getGame());
         prompt();
     }

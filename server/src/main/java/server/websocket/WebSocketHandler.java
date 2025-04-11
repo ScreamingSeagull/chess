@@ -86,7 +86,7 @@ public class WebSocketHandler {
     }
     private void makeMove(Connection connection, MakeMove message) throws WebSocketException, IOException {
         try {
-            GameData game = gameDAO.getGame(message.getGameID());
+            GameData game = gameDAO.getGame(message.getGameID()+1);
             ChessPiece piece = game.game().getBoard().getPiece(message.getMove().getStartPosition());
             if (lobbies.get(message.getGameID()).isEnded()){
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Game is over.")));
@@ -105,7 +105,7 @@ public class WebSocketHandler {
                         enemy = ChessGame.TeamColor.WHITE;
                     }
                     if(game.game().isInCheckmate(enemy) || game.game().isInCheckmate(enemy)){
-                        //end game
+                        lobbies.get(game.gameID()).isEnded();
                     }
                     gameDAO.updateGame(game.gameID(), game);
                     lobbies.get(message.getGameID()).notify("", new LoadGame(game));
@@ -127,7 +127,8 @@ public class WebSocketHandler {
             GameData game = gameDAO.getGame(message.getGameID());
             if (connection.username.equals(game.whiteUsername()) || connection.username.equals(game.blackUsername())){
                 if (!lobbies.get(message.getGameID()).isEnded()){
-                    lobbies.get(message.getGameID()).notify(connection.username, new Notification(String.format("%s has surrendered.", connection.username)));
+                    lobbies.get(message.getGameID()).notify(connection.username,
+                            new Notification(String.format("%s has surrendered.", connection.username)));
                     connection.send(new Gson().toJson(new Notification("You have surrendered.")));
                     lobbies.get(message.getGameID()).endGame();
                 } else {

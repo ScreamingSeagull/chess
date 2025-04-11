@@ -22,7 +22,7 @@ public class HttpComms {
     private final String serverUrl;
 
     public HttpComms(String serverUrl) {
-        this.serverUrl = "http://" + serverUrl;
+        this.serverUrl = serverUrl;
     }
     public void clearDB() {
         var path = "/db";

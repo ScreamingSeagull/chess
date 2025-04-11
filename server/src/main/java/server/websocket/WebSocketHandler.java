@@ -10,7 +10,6 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
-import org.eclipse.jetty.websocket.common.scopes.WebSocketContainerScope;
 import websocket.commands.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGame;
@@ -51,6 +50,9 @@ public class WebSocketHandler {
             throw new RuntimeException(e);
         }
     }
+    public void clear() {
+        lobbies.clear();
+    }
     private void lobbySetup(int gameID, Connection connection) {
         if (!lobbies.containsKey(gameID)) {
             lobbies.put(gameID, new ConnectionManagement());
@@ -72,7 +74,7 @@ public class WebSocketHandler {
             throw new WebSocketException(e.getMessage());
         }
     }
-    private void checkStatus(GameData gameData) throws WebSocketException, IOException {
+    private void checkStatus(GameData gameData) throws IOException {
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)){
             lobbies.get(gameData.gameID()).endGame();
             lobbies.get(gameData.gameID()).notify("", new Notification("White has won."));
@@ -89,7 +91,9 @@ public class WebSocketHandler {
             if (lobbies.get(message.getGameID()).isEnded()){
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Game is over.")));
             }
-            else if (piece == null || !connection.username.equals(piece.getTeamColorString())){
+            else if (piece == null ||
+                    !connection.username.equals(game.whiteUsername()) && piece.getTeamColor()== ChessGame.TeamColor.WHITE ||
+                    !connection.username.equals(game.blackUsername()) && piece.getTeamColor()== ChessGame.TeamColor.BLACK ){
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Invalid piece.")));
             }else{
                 if (!lobbies.get(message.getGameID()).isEnded()) {
@@ -121,13 +125,18 @@ public class WebSocketHandler {
     private void resignGame(Connection connection, Resign message) {
         try {
             GameData game = gameDAO.getGame(message.getGameID());
-            if (lobbies.get(game.gameID()).isEnded()){
-                connection.send(new Gson().toJson(new ErrorMessage("Error: Opponent has already surrendered.")));
+            if (connection.username.equals(game.whiteUsername()) || connection.username.equals(game.blackUsername())){
+                if (!lobbies.get(message.getGameID()).isEnded()){
+                    lobbies.get(message.getGameID()).notify(connection.username, new Notification(String.format("%s has surrendered.", connection.username)));
+                    connection.send(new Gson().toJson(new Notification("You have surrendered.")));
+                    lobbies.get(message.getGameID()).endGame();
+                } else {
+                    connection.send(new Gson().toJson(new ErrorMessage("Error: Opponent already resigned.")));
+                }
             } else{
-                lobbies.get(message.getGameID()).notify("", new Notification(String.format("%s has surrendered.", connection.username)));
-                lobbies.get(message.getGameID()).endGame();
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Cannot resign as spectator.")));
             }
-        } catch (DataAccessException | IOException e) {
+        } catch (IOException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }

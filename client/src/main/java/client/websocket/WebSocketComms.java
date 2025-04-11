@@ -13,7 +13,7 @@ public class WebSocketComms extends Endpoint {
     Session session;
     public WebSocketComms(String url, MessageHandler.Whole<String> messageHandler) throws ResponseException {
         try {
-            URI uri = new URI(String.format("ws://%s/connect", url));
+            URI uri = new URI(String.format("ws://%s/ws", url));
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
             this.session.addMessageHandler(messageHandler);

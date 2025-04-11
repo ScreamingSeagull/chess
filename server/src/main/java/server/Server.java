@@ -16,6 +16,7 @@ public class Server {
     private AppService appService;
     private AuthService authService;
     private GameService gameService;
+    private WebSocketHandler webSocketHandler;
     public int run(int desiredPort) {
         try {
             userDAO = new SQLUserDAO();
@@ -24,13 +25,14 @@ public class Server {
         } catch (DataAccessException e) {
             System.out.println("Server cannot start" + e.getMessage());
         }
+        System.out.println("TEst");
         userService = new UserService(userDAO, authDAO, gameDAO);
         appService = new AppService(userDAO, authDAO, gameDAO);
         authService = new AuthService(userDAO, authDAO, gameDAO);
         gameService = new GameService(userDAO, authDAO, gameDAO);
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
-        WebSocketHandler webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
+        webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
         Spark.exception(DataAccessException.class, this::errorHandler);
         Spark.exception(ServiceException.class, this::serviceErrorHandler);
         Spark.webSocket("/ws", webSocketHandler);
@@ -48,6 +50,7 @@ public class Server {
     }
     private Object clearApp(Request req, Response res) throws DataAccessException {
         appService.deleteall();
+        webSocketHandler.clear();
         res.status(200); //Throw exceptions in Service
         res.body("");
         return "";

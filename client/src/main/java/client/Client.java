@@ -59,6 +59,9 @@ public class Client implements MessageHandler.Whole<String> {
                 case "help" ->help();
                 case "print" ->printG(out, false, null);
                 case "watch" ->observe(params);
+                case "move" ->makeMove(params);
+                case "surrender" ->resign();
+                case "leave" -> leaveGame();
                 case "quit" ->quitLogout();
                 default -> System.out.println("Incorrect command entered.");
             }
@@ -185,7 +188,6 @@ public class Client implements MessageHandler.Whole<String> {
             //printG(out, true);
         }
     }
-
     public void observe(String... params) {
         if(state == state.SIGNEDIN) {
             black = false;
@@ -195,6 +197,7 @@ public class Client implements MessageHandler.Whole<String> {
             try {
                 int game = Integer.parseInt(params[0]);
                 System.out.println("Now watching game number " + params[0]);
+                serverFacade.observeGame(game);
                 //printG(out, false); enable proper game viewing
             } catch (NumberFormatException e) {
                 System.out.println("Please input a valid gameID");
@@ -203,6 +206,15 @@ public class Client implements MessageHandler.Whole<String> {
         else {
             System.out.println("Not currently logged in.");
         }
+    }
+    public void makeMove(String... params) {
+
+    }
+    public void resign(){
+
+    }
+    public void leaveGame(){
+
     }
     public void help(){
         if (state == State.SIGNEDOUT) {

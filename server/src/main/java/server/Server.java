@@ -1,5 +1,7 @@
 package server;
 import java.util.Map;
+
+import server.websocket.WebSocketHandler;
 import spark.*;
 import dataaccess.*;
 import com.google.gson.Gson;
@@ -31,7 +33,7 @@ public class Server {
         WebSocketHandler webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
         Spark.exception(DataAccessException.class, this::errorHandler);
         Spark.exception(ServiceException.class, this::serviceErrorHandler);
-        Spark.webSocket("/connect", webSocketHandler);
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.delete("/db", this::clearApp);
         Spark.post("/user", this::register);

@@ -2,7 +2,6 @@ package client;
 
 import chess.*;
 
-import client.websocket.WebSocketComms;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
@@ -351,7 +350,7 @@ public class Client implements MessageHandler.Whole<String> {
                 break;
             }
             case ERROR: {
-                printError(new Gson().fromJson(s, ServerError.class));
+                printError(new Gson().fromJson(s, ErrorMessage.class));
                 break;
             }
         }
@@ -364,7 +363,7 @@ public class Client implements MessageHandler.Whole<String> {
         printG(out, black, message.getGame());
         prompt();
     }
-    public void printError(ServerError message){
+    public void printError(ErrorMessage message){
         out.print(SET_TEXT_COLOR_RED + "ERROR: " + message.getMessage());
         prompt();
     }

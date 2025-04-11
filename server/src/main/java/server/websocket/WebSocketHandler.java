@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.common.scopes.WebSocketContainerScope;
 import websocket.commands.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGame;
@@ -36,7 +37,8 @@ public class WebSocketHandler {
         AuthData user = authDAO.getAuth(command.getAuthToken());
         try {
             if (user == null) {
-                throw new WebSocketException("Error: unauthorized.");
+                Connection badConnection = new Connection("Unauthorized", session);
+                badConnection.send(new Gson().toJson(new ErrorMessage("Error: Game not found.")));
             }
             Connection connection = new Connection(user.username(), session);
             switch (command.getCommandType()) {
@@ -45,7 +47,7 @@ public class WebSocketHandler {
                 case UserGameCommand.CommandType.RESIGN -> resignGame(connection, new Gson().fromJson(s, Resign.class));
                 case UserGameCommand.CommandType.LEAVE -> leaveGame(connection, new Gson().fromJson(s, Leave.class));
             }
-        } catch (WebSocketException e) {
+        } catch (WebSocketException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -70,63 +72,82 @@ public class WebSocketHandler {
             throw new WebSocketException(e.getMessage());
         }
     }
-    private void ensureTeams(GameData gameData, String username, String teamColor) throws WebSocketException {
+    private void checkStatus(GameData gameData) throws WebSocketException, IOException {
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)){
-            throw new WebSocketException("Game is over!");
+            lobbies.get(gameData.gameID()).endGame();
+            lobbies.get(gameData.gameID()).notify("", new Notification("White has won."));
         }
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
-            throw new WebSocketException("Game is over!");
-        }
-        if (teamColor == null){
-            throw new WebSocketException("No team color given.");
-        }
-        if (teamColor.equals("white") && !gameData.whiteUsername().equals(username)){
-            throw new WebSocketException("Spot taken");
-        }
-        if (teamColor.equals("black") && !gameData.blackUsername().equals(username)) {
-            throw new WebSocketException("Spot taken");
+            lobbies.get(gameData.gameID()).endGame();
+            lobbies.get(gameData.gameID()).notify("", new Notification("Black has won."));
         }
     }
-    private void makeMove(Connection connection, MakeMove message) throws WebSocketException {
+    private void makeMove(Connection connection, MakeMove message) throws WebSocketException, IOException {
         try {
-            boolean over = false;
             GameData game = gameDAO.getGame(message.getGameID());
             ChessPiece piece = game.game().getBoard().getPiece(message.getMove().getStartPosition());
-            if (piece == null) {
-                throw new WebSocketException("No piece selected.");
+            if (lobbies.get(message.getGameID()).isEnded()){
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Game is over.")));
             }
-            ensureTeams(game, connection.username, piece.getTeamColorString());
-            game.game().makeMove(message.getMove());
-            ChessGame.TeamColor enemy;
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                 enemy = ChessGame.TeamColor.BLACK;
-            } else{
-                enemy = ChessGame.TeamColor.WHITE;
+            else if (piece == null || !connection.username.equals(piece.getTeamColorString())){
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Invalid piece.")));
+            }else{
+                if (!lobbies.get(message.getGameID()).isEnded()) {
+                    game.game().makeMove(message.getMove());
+                    ChessGame.TeamColor enemy;
+                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        enemy = ChessGame.TeamColor.BLACK;
+                    } else{
+                        enemy = ChessGame.TeamColor.WHITE;
+                    }
+                    if(game.game().isInCheckmate(enemy) || game.game().isInCheckmate(enemy)){
+                        //end game
+                    }
+                    gameDAO.updateGame(game.gameID(), game);
+                    lobbies.get(message.getGameID()).notify("", new LoadGame(game));
+                    lobbies.get(message.getGameID()).notify(connection.username, new Notification(String.format("%s moved %s from %s to %s.",
+                            connection.username, piece.getPieceType().name(),
+                            message.getMove().getStartPosition().toString(),
+                            message.getMove().getEndPosition().toString())));
+                    checkStatus(game);
+                }
             }
-            if(game.game().isInCheckmate(enemy) || game.game().isInCheckmate(enemy)){
-                //end game
-                over = true;
-            }
-            gameDAO.updateGame(game.gameID(), game);
-            lobbies.get(message.getGameID()).notify("", new LoadGame(game));
-            lobbies.get(message.getGameID()).notify(connection.username, new Notification(String.format("%s moved %s from %s to %s.",
-                    connection.username, piece.getPieceType().name(),
-                    message.getMove().getStartPosition().toString(),
-                    message.getMove().getEndPosition().toString())));
-            if (over) {
-                lobbies.get(message.getGameID()).notify("", new Notification(
-                        String.format("%s has won.", connection.username)
-                ));
-            }
-
-        } catch (DataAccessException | InvalidMoveException | IOException e) {
+        } catch (DataAccessException | IOException e) {
             throw new RuntimeException(e);
+        } catch (InvalidMoveException e) {
+            connection.send(new Gson().toJson(new ErrorMessage("Error: Move is illegal.")));
         }
     }
     private void resignGame(Connection connection, Resign message) {
-
+        try {
+            GameData game = gameDAO.getGame(message.getGameID());
+            if (lobbies.get(game.gameID()).isEnded()){
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Opponent has already surrendered.")));
+            } else{
+                lobbies.get(message.getGameID()).notify("", new Notification(String.format("%s has surrendered.", connection.username)));
+                lobbies.get(message.getGameID()).endGame();
+            }
+        } catch (DataAccessException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-    private void leaveGame(Connection connection, Leave message) {
+    private void leaveGame(Connection connection, Leave message) throws WebSocketException {
+        try{
+            GameData game = gameDAO.getGame(message.getGameID());
+            AuthData user = authDAO.getAuth(message.getAuthToken());
+            GameData update;
+            if (connection.username.equals(game.whiteUsername())){
+                update = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+                gameDAO.updateGame(game.gameID(), update);
+            } else if (connection.username.equals(game.blackUsername())){
+                update = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+                gameDAO.updateGame(game.gameID(), update);
+            }
+            lobbies.get(message.getGameID()).remove(connection.username);
+            lobbies.get(message.getGameID()).notify(connection.username, new Notification(connection.username + " has left."));
 
+        } catch (DataAccessException | IOException e) {
+            throw new WebSocketException(e.getMessage());
+        }
     }
 }

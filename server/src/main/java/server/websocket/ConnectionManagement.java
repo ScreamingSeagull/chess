@@ -9,6 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManagement {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    public boolean ended = false;
+    public void endGame(){
+        ended = true;
+    }
+    public boolean isEnded() {
+        return ended;
+    }
     public void add (Connection connection) {
         connections.put(connection.username, connection);
     }

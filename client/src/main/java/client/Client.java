@@ -214,7 +214,9 @@ public class Client implements MessageHandler.Whole<String> {
         if(state == state.SIGNEDIN) {
             if(game == state.SIGNEDIN){
                 if(params.length != 5){
-                    System.out.println("Please input a chess move: starting row and column ending row and column and promotion type (none if not available).");
+                    System.out.println("Please input a chess move: " +
+                            "starting row and column ending row and column and promotion type " +
+                            "(none if not available).");
                 } else{
                     ChessPosition start = new ChessPosition(Integer.parseInt(params[0])-1, (params[1].charAt(0) - 'a'));
                     ChessPosition end = new ChessPosition(Integer.parseInt(params[2])-1, (params[3].charAt(0) - 'a'));

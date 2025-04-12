@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -30,6 +31,9 @@ public class Client implements MessageHandler.Whole<String> {
     private State game = State.SIGNEDOUT; //used to see if in a  game
     private int gameID = -1;
     private boolean black = false;
+    private boolean highlight = false;
+    private ChessPosition highlightSpot;
+    Collection<ChessMove> highlights;
 
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
@@ -63,6 +67,7 @@ public class Client implements MessageHandler.Whole<String> {
                 case "print" ->printG(out, false, null);
                 case "watch" ->observe(params);
                 case "move" ->makeMove(params);
+                case "highlight" -> highlight(params);
                 case "surrender" ->resign();
                 case "leave" -> leaveGame();
                 case "quit" ->quitLogout();
@@ -324,6 +329,18 @@ public class Client implements MessageHandler.Whole<String> {
     public void prompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + state +" >>>" + SET_TEXT_COLOR_GREEN);
     }
+    public void highlight(String... params){
+        if (params.length == 2) {
+            int startRow = Integer.parseInt(params[0]);
+            int startCol = (params[1].charAt(0) - 'a' + 1);
+            if (startRow > 8 || startRow < 1 || startCol > 8 || startCol < 1) {
+                System.out.println("Invalid starting position.");
+            }
+            highlight = true;
+            highlightSpot = new ChessPosition(startRow, startCol);
+            serverFacade.boardReq(gameID);
+        }
+    }
     private void printHorizontalBorder(PrintStream out, boolean black) {
         drawSquare(out, null, null, null);
         if (black) {
@@ -409,10 +426,45 @@ public class Client implements MessageHandler.Whole<String> {
     private void tileCreate(PrintStream out, int boardRow, int boardCol, ChessBoard chessBoard) {
         Color pieceColor = convertCol(chessBoard.getPiece(boardRow + 1, boardCol + 1));
         char piece = convert(chessBoard.getPiece(boardRow + 1, boardCol + 1));
+        if (highlight){
+            ChessPosition temp = new ChessPosition(boardRow, boardCol);
+            Collection<ChessPosition> spotTemp = new ArrayList<>();
+            for (ChessMove move : highlights){
+                ChessPosition tempPos = new ChessPosition(move.getEndPosition().getRow()-1,
+                        move.getEndPosition().getColumn()-1);
+                spotTemp.add(tempPos);
+            }
+            if(spotTemp.contains(temp)){
+                drawHighlight(out, pieceColor, piece);
+            } else{
+                checkerPattern(out, boardRow, boardCol, pieceColor, piece);
+            }
+        } else{
+            checkerPattern(out, boardRow, boardCol, pieceColor, piece);
+        }
+    }
+
+    private void checkerPattern(PrintStream out, int boardRow, int boardCol, Color pieceColor, char piece) {
         if ((boardRow + boardCol) % 2 == 0) {
             drawSquare(out, Color.black, pieceColor, piece);
         } else {
             drawSquare(out, Color.white, pieceColor, piece);
+        }
+    }
+
+    private void drawHighlight(PrintStream out, Color pieceColor, Character c){
+        out.print(SET_BG_COLOR_BLUE);
+        if (pieceColor == Color.WHITE){
+            out.print(SET_TEXT_COLOR_WHITE);
+        } else if (pieceColor == Color.BLACK){
+            out.print(SET_TEXT_COLOR_BLACK);
+        } else if (pieceColor == null) {
+            out.print(SET_TEXT_COLOR_WHITE);
+        }
+        if (c == null) {
+            out.print("\u2005\u2005 \u2005\u2005");
+        } else {
+            out.print("\u2005\u2005" + c + "\u2005\u2005");
         }
     }
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {
@@ -434,7 +486,7 @@ public class Client implements MessageHandler.Whole<String> {
             out.print("\u2005\u2005 \u2005\u2005");
         } else {
             out.print("\u2005\u2005" + c + "\u2005\u2005");
-            }
+        }
     }
 
     @Override
@@ -448,7 +500,13 @@ public class Client implements MessageHandler.Whole<String> {
             case LOAD_GAME: {
                 LoadGame loadGame = new Gson().fromJson(s, LoadGame.class);
                 currentGame = loadGame.getGame();
+                if (highlight){
+                    highlights = loadGame.getGame().game().validMoves(highlightSpot);
+                }
                 printGame(loadGame);
+                highlight = false;
+                highlightSpot = null;
+                highlights.clear();
                 break;
             }
             case ERROR: {

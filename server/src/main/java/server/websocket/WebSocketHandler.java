@@ -43,6 +43,7 @@ public class WebSocketHandler {
             switch (command.getCommandType()) {
                 case UserGameCommand.CommandType.CONNECT -> connectGame(connection, new Gson().fromJson(s, Connect.class));
                 case UserGameCommand.CommandType.MAKE_MOVE -> makeMove(connection, new Gson().fromJson(s, MakeMove.class));
+                case UserGameCommand.CommandType.BOARDREQ -> getBoard(connection, new Gson().fromJson(s, BoardReq.class));
                 case UserGameCommand.CommandType.RESIGN -> resignGame(connection, new Gson().fromJson(s, Resign.class));
                 case UserGameCommand.CommandType.LEAVE -> leaveGame(connection, new Gson().fromJson(s, Leave.class));
             }
@@ -82,6 +83,18 @@ public class WebSocketHandler {
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
             lobbies.get(gameData.gameID()).endGame();
             lobbies.get(gameData.gameID()).notify("", new Notification("Black has won."));
+        }
+    }
+    private void getBoard(Connection connection, BoardReq message) throws WebSocketException {
+        try {
+            GameData game = gameDAO.getGame(message.getGameID());
+            if (game == null) {
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Game not found.")));
+            }else{
+                connection.send(new Gson().toJson(new LoadGame(game)));
+            }
+        } catch (DataAccessException | IOException e) {
+            throw new WebSocketException(e.getMessage());
         }
     }
     private void makeMove(Connection connection, MakeMove message) throws WebSocketException, IOException {

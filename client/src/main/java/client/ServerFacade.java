@@ -59,6 +59,9 @@ public class ServerFacade {
     public void chessMove(int gameID, ChessMove move) {
         webSocketComms.sendMessage(new MakeMove(gameID, authToken, move));
     }
+    public void boardReq(int gameID){
+        webSocketComms.sendMessage(new BoardReq(gameID, authToken));
+    }
     public void resign(int gameID) {
         webSocketComms.sendMessage(new Resign(authToken, gameID));
     }

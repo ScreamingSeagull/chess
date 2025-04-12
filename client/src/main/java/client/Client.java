@@ -64,17 +64,17 @@ public class Client implements MessageHandler.Whole<String> {
                 case "create"->create(params);
                 case "join"->join(params);
                 case "help" ->help();
-                case "print" ->printG(out, false, null);
                 case "watch" ->observe(params);
                 case "move" ->makeMove(params);
                 case "highlight" -> highlight(params);
-                case "surrender" ->resign();
+                case "redraw" -> redraw();
+                case "resign" ->resign();
                 case "leave" -> leaveGame();
                 case "quit" ->quitLogout();
                 default -> System.out.println("Incorrect command entered.");
             }
         } catch (ResponseException e) {
-            out.println("Unknown error. Please retry command."); //999 error code because idk what the code is supposed to be
+            out.println(e.getMessage()); //999 error code because idk what the code is supposed to be
         }
     }
     public void clearDB() {
@@ -122,6 +122,9 @@ public class Client implements MessageHandler.Whole<String> {
     }
     public void logout(){
         if (state.equals(State.SIGNEDIN)){
+            if(game == State.SIGNEDIN){
+                leaveGame();
+            }
             serverFacade.logout();
             state = State.SIGNEDOUT;
             System.out.println("Logged out.");
@@ -321,13 +324,21 @@ public class Client implements MessageHandler.Whole<String> {
             System.out.println("watch <GAMEID> - observe a game in progress from the sidelines");
         } else if (state == State.SIGNEDIN && game == State.SIGNEDIN){
             System.out.println("help - display commands for logged in and logged out states");
-            System.out.println("move - <starting row> <starting column> <ending row> <ending column> <promotion type, only for end> move piece from start to end");
-            System.out.println("surrender - surrender the game to the opponent");
+            System.out.println("move - <starting row> <starting column> <ending row> <ending column> <promotion type, only for end> - move piece from start to end");
+            System.out.println("highlight - <row> <column> - display legal moves for a piece");
+            System.out.println("resign - surrender the game to the opponent");
             System.out.println("leave - leave the game");
         }
     }
     public void prompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + state +" >>>" + SET_TEXT_COLOR_GREEN);
+    } public void redraw(){
+        if(game == State.SIGNEDIN){
+            serverFacade.boardReq(gameID);
+        }
+        else {
+            System.out.println("You are not currently in a game.");
+        }
     }
     public void highlight(String... params){
         if (params.length == 2) {

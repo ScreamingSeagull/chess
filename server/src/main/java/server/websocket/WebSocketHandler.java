@@ -95,7 +95,10 @@ public class WebSocketHandler {
                     !connection.username.equals(game.whiteUsername()) && piece.getTeamColor()== ChessGame.TeamColor.WHITE ||
                     !connection.username.equals(game.blackUsername()) && piece.getTeamColor()== ChessGame.TeamColor.BLACK ){
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Invalid piece.")));
-            }else{
+            } else if (piece.getTeamColor() != game.game().getTeamTurn()){
+                connection.send(new Gson().toJson(new ErrorMessage("Error: Not your turn.")));
+            }
+            else{
                 if (!lobbies.get(message.getGameID()).isEnded()) {
                     game.game().makeMove(message.getMove());
                     ChessGame.TeamColor enemy;
@@ -104,8 +107,8 @@ public class WebSocketHandler {
                     } else{
                         enemy = ChessGame.TeamColor.WHITE;
                     }
-                    if(game.game().isInCheckmate(enemy) || game.game().isInCheckmate(enemy)){
-                        lobbies.get(game.gameID()).isEnded();
+                    if(game.game().isInCheckmate(enemy)){
+                        lobbies.get(game.gameID()).endGame();
                     }
                     gameDAO.updateGame(game.gameID(), game);
                     lobbies.get(message.getGameID()).notify("", new LoadGame(game));

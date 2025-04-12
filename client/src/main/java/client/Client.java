@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
@@ -27,7 +28,7 @@ public class Client implements MessageHandler.Whole<String> {
     private GameData currentGame = null;
     private State state = State.SIGNEDOUT;
     private State game = State.SIGNEDOUT; //used to see if in a  game
-    private int gameID = 0;
+    private int gameID = -1;
     private boolean black = false;
 
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -76,7 +77,7 @@ public class Client implements MessageHandler.Whole<String> {
         System.out.println("All databases wiped.");
         state = State.SIGNEDOUT;
         game = State.SIGNEDOUT;
-        gameID = 0;
+        gameID = -1;
     }
     public void register(String... params) {
         if (state.equals(State.SIGNEDOUT)){
@@ -185,8 +186,8 @@ public class Client implements MessageHandler.Whole<String> {
     }
 
     private void joinGame(String[] params) {
-        int gameid = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
-        JoinGameRequest req = new JoinGameRequest(gameid, params[1]);
+        gameID = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
+        JoinGameRequest req = new JoinGameRequest(gameID, params[1]);
         serverFacade.join(req);
         System.out.println("Joined game.");
         game = State.SIGNEDIN;
@@ -198,10 +199,10 @@ public class Client implements MessageHandler.Whole<String> {
                 System.out.println("Please input only Game ID");
             }
             try {
-                int game = Integer.parseInt(params[0]);
+                gameID = Integer.parseInt(params[0]);
                 System.out.println("Now watching game number " + params[0]);
-                serverFacade.observeGame(game);
-                //printG(out, false); enable proper game viewing
+                serverFacade.observeGame(gameID);
+                game = State.SIGNEDIN;
             } catch (NumberFormatException e) {
                 System.out.println("Please input a valid gameID");
             }
@@ -213,14 +214,37 @@ public class Client implements MessageHandler.Whole<String> {
     public void makeMove(String... params) {
         if(state == state.SIGNEDIN) {
             if(game == state.SIGNEDIN){
-                if(params.length != 5){
-                    System.out.println("Please input a chess move: " +
-                            "starting row and column ending row and column and promotion type " +
-                            "(none if not available).");
-                } else{
-                    ChessPosition start = new ChessPosition(Integer.parseInt(params[0])-1, (params[1].charAt(0) - 'a'));
-                    ChessPosition end = new ChessPosition(Integer.parseInt(params[2])-1, (params[3].charAt(0) - 'a'));
-                    ChessPiece.PieceType type;
+                ChessMove move = getChessMove(params);
+                if (move != null){
+                    serverFacade.chessMove(gameID, move);
+                }
+            }
+            else {
+                System.out.println("Not currently in a game.");
+            }
+        }
+        else {
+            System.out.println("Not currently logged in.");
+        }
+    }
+
+    private static ChessMove getChessMove(String[] params) {
+        if (params.length == 4 || params.length == 5) {
+            int startRow = Integer.parseInt(params[0]);
+            int startCol = (params[1].charAt(0) - 'a' + 1);
+            int endRow = Integer.parseInt(params[2]);
+            int endCol = (params[3].charAt(0) - 'a' + 1);
+            if (startRow > 8 || startRow < 1 || startCol > 8 || startCol < 1) {
+                System.out.println("Invalid starting position.");
+                return null;
+            } else if (endRow > 8 || endRow < 1 || endCol > 8 || endCol < 1) {
+                System.out.println("Invalid end position.");
+                return null;
+            } else{
+                ChessPosition start = new ChessPosition(startRow, startCol);
+                ChessPosition end = new ChessPosition(endRow, endCol);
+                ChessPiece.PieceType type;
+                if (params.length == 5){
                     switch (params[4]){
                         case "knight"->type = ChessPiece.PieceType.KNIGHT;
                         case "bishop"->type = ChessPiece.PieceType.BISHOP;
@@ -228,30 +252,38 @@ public class Client implements MessageHandler.Whole<String> {
                         case "queen"->type = ChessPiece.PieceType.QUEEN;
                         default -> type = null;
                     }
-                    ChessMove move = new ChessMove(start, end, type);
-                    serverFacade.chessMove(gameID, move);
                 }
-
+                else {
+                    type = null;
+                }
+                return new ChessMove(start, end, type);
             }
-            else {
-                System.out.println("Not currently in a game.");
-            }
-        }
-        else {
-            System.out.println("Not currently logged in.");
+        }else {
+            System.out.println("Please input a chess move: " +
+                    "starting row and column ending row and column and promotion type " +
+                    "(none if not available).");
+            return null;
         }
     }
+
     public void resign(){
-        if(state == state.SIGNEDIN) {
-            if(game == state.SIGNEDIN){
-                serverFacade.resign(gameID);
+        System.out.println("Are you sure you want to resign?");
+        Scanner scan = new Scanner(System.in);
+        String line = "";
+        prompt();
+        line = scan.nextLine();
+        if (line.equals("yes")){
+            if(state == state.SIGNEDIN) {
+                if(game == state.SIGNEDIN){
+                    serverFacade.resign(gameID);
+                }
+                else {
+                    System.out.println("Not currently in a game.");
+                }
             }
             else {
-                System.out.println("Not currently in a game.");
+                System.out.println("Not currently logged in.");
             }
-        }
-        else {
-            System.out.println("Not currently logged in.");
         }
     }
     public void leaveGame(){
@@ -259,7 +291,7 @@ public class Client implements MessageHandler.Whole<String> {
             if(game == state.SIGNEDIN){
                 serverFacade.leaveGame(gameID);
                 game = state.SIGNEDOUT;
-                gameID=0;
+                gameID=-1;
             }
             else {
                 System.out.println("Not currently in a game.");
@@ -275,13 +307,18 @@ public class Client implements MessageHandler.Whole<String> {
             System.out.println("quit - end program");
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - create an account");
             System.out.println("login <USERNAME> <PASSWORD> - login to an existing account");
-        } else {
+        } else if (state == State.SIGNEDIN && game == State.SIGNEDOUT){
             System.out.println("help - display commands for logged in and logged out states");
             System.out.println("logout - logout from program");
             System.out.println("create <GAMENAME> - create new game of specified name");
             System.out.println("list - list currently running games");
             System.out.println("join <GAMEID> <PLAYERCOLOR> - join a set game on a set player color");
             System.out.println("watch <GAMEID> - observe a game in progress from the sidelines");
+        } else if (state == State.SIGNEDIN && game == State.SIGNEDIN){
+            System.out.println("help - display commands for logged in and logged out states");
+            System.out.println("move - <starting row> <starting column> <ending row> <ending column> <promotion type, only for end> move piece from start to end");
+            System.out.println("surrender - surrender the game to the opponent");
+            System.out.println("leave - leave the game");
         }
     }
     public void prompt() {
@@ -430,7 +467,7 @@ public class Client implements MessageHandler.Whole<String> {
         prompt();
     }
     public void printError(ErrorMessage message){
-        out.print(SET_TEXT_COLOR_RED + "ERROR: " + message.getMessage());
+        out.print(SET_TEXT_COLOR_RED + message.getMessage());
         prompt();
     }
 }

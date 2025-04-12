@@ -25,8 +25,6 @@ import static ui.EscapeSequences.*;
 
 public class Client implements MessageHandler.Whole<String> {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
-    private GameData currentGame = null;
     private State state = State.SIGNEDOUT;
     private State game = State.SIGNEDOUT; //used to see if in a  game
     private int gameID = -1;
@@ -34,13 +32,10 @@ public class Client implements MessageHandler.Whole<String> {
     private boolean highlight = false;
     private ChessPosition highlightSpot;
     Collection<ChessMove> highlights;
-
     PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     ChessBoard board = new ChessBoard();
     ArrayList<GameData> gameDataArrayList = new ArrayList<>();
-
     public Client(String serverUrl) throws URISyntaxException, IOException {
-        this.serverUrl = serverUrl;
         serverFacade = new ServerFacade(serverUrl, this);
         board.resetBoard();
     }
@@ -49,8 +44,7 @@ public class Client implements MessageHandler.Whole<String> {
         String cmd;
         if (line.length == 0) {
             cmd = "help";
-        }
-        else {
+        } else {
             cmd = line[0];
         }
         String[] params = Arrays.copyOfRange(line, 1, line.length);
@@ -94,8 +88,7 @@ public class Client implements MessageHandler.Whole<String> {
                 System.out.println("Successfully registered.");
                 state = State.SIGNEDIN;
             }
-        }
-        else {
+        } else {
             System.out.println("Already logged in.");
         }
     }
@@ -109,8 +102,7 @@ public class Client implements MessageHandler.Whole<String> {
                 state = State.SIGNEDIN;
                 System.out.println("Logged in.");
             }
-        }
-        else {
+        } else {
             System.out.println("Already logged in.");
         }
     }
@@ -128,8 +120,7 @@ public class Client implements MessageHandler.Whole<String> {
             serverFacade.logout();
             state = State.SIGNEDOUT;
             System.out.println("Logged out.");
-        }
-        else {
+        } else {
             System.out.println("Not currently logged in, cannot log out.");
         }
     }
@@ -149,8 +140,7 @@ public class Client implements MessageHandler.Whole<String> {
                     System.out.println("Chess game " + (i+1) + ": " + gameDataArrayList.get(i));
                 }
             }
-        }
-        else {
+        } else {
             System.out.println("Not signed in.");
         }
     }
@@ -158,13 +148,11 @@ public class Client implements MessageHandler.Whole<String> {
         if(state == state.SIGNEDIN) {
             if(params.length != 1) {
                 System.out.println("Only enter the name of the game you wish to create.");
-            }
-            else{
+            } else{
                 serverFacade.create(params[0]);
                 System.out.println("Created new chess game " + params[0]);
             }
-        }
-        else {
+        } else {
             System.out.println("Not currently logged in.");
         }
     }
@@ -172,8 +160,7 @@ public class Client implements MessageHandler.Whole<String> {
         if(state == state.SIGNEDIN) {
             if(params.length != 2) {
                 System.out.println("Please input only Game ID and player color.");
-            }
-            else if (params[1].equals("white") || params[1].equals("black")) {
+            } else if (params[1].equals("white") || params[1].equals("black")) {
                 if (params[1].equals("white")) {black = false;} //Remember to set back to false when leaving
                 else {black = true;}
                 try {
@@ -185,14 +172,11 @@ public class Client implements MessageHandler.Whole<String> {
                 } catch (NumberFormatException e) {
                     System.out.println("Please input a valid gameID");
                 }
-            }
-            else {System.out.println("Please input a valid player color.");}
-        }
-        else {
+            } else {System.out.println("Please input a valid player color.");}
+        } else {
             System.out.println("Not currently logged in.");
         }
     }
-
     private void joinGame(String[] params) {
         gameID = (gameDataArrayList.get(Integer.parseInt(params[0]) - 1).gameID());
         JoinGameRequest req = new JoinGameRequest(gameID, params[1]);
@@ -214,8 +198,7 @@ public class Client implements MessageHandler.Whole<String> {
             } catch (NumberFormatException e) {
                 System.out.println("Please input a valid gameID");
             }
-        }
-        else {
+        } else {
             System.out.println("Not currently logged in.");
         }
     }
@@ -226,16 +209,13 @@ public class Client implements MessageHandler.Whole<String> {
                 if (move != null){
                     serverFacade.chessMove(gameID, move);
                 }
-            }
-            else {
+            } else {
                 System.out.println("Not currently in a game.");
             }
-        }
-        else {
+        } else {
             System.out.println("Not currently logged in.");
         }
     }
-
     private static ChessMove getChessMove(String[] params) {
         if (params.length == 4 || params.length == 5) {
             int startRow = Integer.parseInt(params[0]);
@@ -248,7 +228,7 @@ public class Client implements MessageHandler.Whole<String> {
             } else if (endRow > 8 || endRow < 1 || endCol > 8 || endCol < 1) {
                 System.out.println("Invalid end position.");
                 return null;
-            } else{
+            } else {
                 ChessPosition start = new ChessPosition(startRow, startCol);
                 ChessPosition end = new ChessPosition(endRow, endCol);
                 ChessPiece.PieceType type;
@@ -260,8 +240,7 @@ public class Client implements MessageHandler.Whole<String> {
                         case "queen"->type = ChessPiece.PieceType.QUEEN;
                         default -> type = null;
                     }
-                }
-                else {
+                } else {
                     type = null;
                 }
                 return new ChessMove(start, end, type);
@@ -273,7 +252,6 @@ public class Client implements MessageHandler.Whole<String> {
             return null;
         }
     }
-
     public void resign(){
         System.out.println("Are you sure you want to resign?");
         Scanner scan = new Scanner(System.in);
@@ -284,12 +262,10 @@ public class Client implements MessageHandler.Whole<String> {
             if(state == state.SIGNEDIN) {
                 if(game == state.SIGNEDIN){
                     serverFacade.resign(gameID);
-                }
-                else {
+                } else {
                     System.out.println("Not currently in a game.");
                 }
-            }
-            else {
+            } else {
                 System.out.println("Not currently logged in.");
             }
         }
@@ -300,12 +276,10 @@ public class Client implements MessageHandler.Whole<String> {
                 serverFacade.leaveGame(gameID);
                 game = state.SIGNEDOUT;
                 gameID=-1;
-            }
-            else {
+            } else {
                 System.out.println("Not currently in a game.");
             }
-        }
-        else {
+        } else {
             System.out.println("Not currently logged in.");
         }
     }
@@ -324,7 +298,8 @@ public class Client implements MessageHandler.Whole<String> {
             System.out.println("watch <GAMEID> - observe a game in progress from the sidelines");
         } else if (state == State.SIGNEDIN && game == State.SIGNEDIN){
             System.out.println("help - display commands for logged in and logged out states");
-            System.out.println("move - <starting row> <starting column> <ending row> <ending column> <promotion type, only for end> - move piece from start to end");
+            System.out.println("move - <starting row> <starting column> <ending row> " +
+                    "<ending column> <promotion type, only for end> - move piece from start to end");
             System.out.println("highlight - <row> <column> - display legal moves for a piece");
             System.out.println("resign - surrender the game to the opponent");
             System.out.println("leave - leave the game");
@@ -335,8 +310,7 @@ public class Client implements MessageHandler.Whole<String> {
     } public void redraw(){
         if(game == State.SIGNEDIN){
             serverFacade.boardReq(gameID);
-        }
-        else {
+        } else {
             System.out.println("You are not currently in a game.");
         }
     }
@@ -363,7 +337,6 @@ public class Client implements MessageHandler.Whole<String> {
                 drawSquare(out, null, null, (char)('A' + i));
             }
         }
-
         drawSquare(out, null, null, null);
         out.println(RESET_BG_COLOR);
     }
@@ -372,20 +345,13 @@ public class Client implements MessageHandler.Whole<String> {
             return ' ';
         }
         switch(piece.getPieceType()) {
-            case KING:
-                return 'K';
-            case QUEEN:
-                return 'q';
-            case ROOK:
-                return 'r';
-            case BISHOP:
-                return 'b';
-            case KNIGHT:
-                return 'k';
-            case PAWN:
-                return 'p';
-            default:
-                return ' ';
+            case KING: return 'K';
+            case QUEEN: return 'q';
+            case ROOK: return 'r';
+            case BISHOP: return 'b';
+            case KNIGHT: return 'k';
+            case PAWN: return 'p';
+            default: return ' ';
         }
     }
     private Color convertCol(ChessPiece piece) {
@@ -428,8 +394,7 @@ public class Client implements MessageHandler.Whole<String> {
     private void makeTile(PrintStream out, int boardRow, int boardCol, GameData game){
         if(game == null) {
             tileCreate(out, boardRow, boardCol, board);
-        }
-        else {
+        } else {
             tileCreate(out, boardRow, boardCol, game.game().getBoard());
         }
 
@@ -454,7 +419,6 @@ public class Client implements MessageHandler.Whole<String> {
             checkerPattern(out, boardRow, boardCol, pieceColor, piece);
         }
     }
-
     private void checkerPattern(PrintStream out, int boardRow, int boardCol, Color pieceColor, char piece) {
         if ((boardRow + boardCol) % 2 == 0) {
             drawSquare(out, Color.black, pieceColor, piece);
@@ -462,7 +426,6 @@ public class Client implements MessageHandler.Whole<String> {
             drawSquare(out, Color.white, pieceColor, piece);
         }
     }
-
     private void drawHighlight(PrintStream out, Color pieceColor, Character c){
         out.print(SET_BG_COLOR_BLUE);
         if (pieceColor == Color.WHITE){
@@ -510,7 +473,6 @@ public class Client implements MessageHandler.Whole<String> {
             }
             case LOAD_GAME: {
                 LoadGame loadGame = new Gson().fromJson(s, LoadGame.class);
-                currentGame = loadGame.getGame();
                 if (highlight){
                     highlights = loadGame.getGame().game().validMoves(highlightSpot);
                 }

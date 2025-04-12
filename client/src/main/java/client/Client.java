@@ -343,13 +343,9 @@ public class Client implements MessageHandler.Whole<String> {
     private void printHorizontalBorder(PrintStream out, boolean black) {
         drawSquare(out, null, null, null);
         if (black) {
-            for (int i = 7; i>=0; i--) {
-                drawSquare(out, null, null, (char)('A' + i));
-            }
+            for (int i = 7; i>=0; i--) { drawSquare(out, null, null, (char)('A' + i));}
         } else {
-            for (int i = 0; i<8; i++) {
-                drawSquare(out, null, null, (char)('A' + i));
-            }
+            for (int i = 0; i<8; i++) {drawSquare(out, null, null, (char)('A' + i));}
         }
         drawSquare(out, null, null, null);
         out.println(RESET_BG_COLOR);
@@ -406,11 +402,8 @@ public class Client implements MessageHandler.Whole<String> {
         }
     }
     private void makeTile(PrintStream out, int boardRow, int boardCol, GameData game){
-        if(game == null) {
-            tileCreate(out, boardRow, boardCol, board);
-        } else {
-            tileCreate(out, boardRow, boardCol, game.game().getBoard());
-        }
+        if(game == null) {tileCreate(out, boardRow, boardCol, board);}
+        else {tileCreate(out, boardRow, boardCol, game.game().getBoard());}
     }
     private void tileCreate(PrintStream out, int boardRow, int boardCol, ChessBoard chessBoard) {
         Color pieceColor = convertCol(chessBoard.getPiece(boardRow + 1, boardCol + 1));
@@ -423,21 +416,13 @@ public class Client implements MessageHandler.Whole<String> {
                         move.getEndPosition().getColumn()-1);
                 spotTemp.add(tempPos);
             }
-            if(spotTemp.contains(temp)){
-                drawHighlight(out, pieceColor, piece);
-            } else{
-                checkerPattern(out, boardRow, boardCol, pieceColor, piece);
-            }
-        } else{
-            checkerPattern(out, boardRow, boardCol, pieceColor, piece);
-        }
+            if(spotTemp.contains(temp)){drawHighlight(out, pieceColor, piece);}
+            else{checkerPattern(out, boardRow, boardCol, pieceColor, piece);}
+        } else{checkerPattern(out, boardRow, boardCol, pieceColor, piece);}
     }
     private void checkerPattern(PrintStream out, int boardRow, int boardCol, Color pieceColor, char piece) {
-        if ((boardRow + boardCol) % 2 == 0) {
-            drawSquare(out, Color.black, pieceColor, piece);
-        } else {
-            drawSquare(out, Color.white, pieceColor, piece);
-        }
+        if ((boardRow + boardCol) % 2 == 0) {drawSquare(out, Color.black, pieceColor, piece);}
+        else {drawSquare(out, Color.white, pieceColor, piece);}
     }
     private void drawHighlight(PrintStream out, Color pieceColor, Character c){
         out.print(SET_BG_COLOR_BLUE);
@@ -448,11 +433,8 @@ public class Client implements MessageHandler.Whole<String> {
         } else if (pieceColor == null) {
             out.print(SET_TEXT_COLOR_WHITE);
         }
-        if (c == null) {
-            out.print("\u2005\u2005 \u2005\u2005");
-        } else {
-            out.print("\u2005\u2005" + c + "\u2005\u2005");
-        }
+        if (c == null) {out.print("\u2005\u2005 \u2005\u2005");}
+        else {out.print("\u2005\u2005" + c + "\u2005\u2005");}
     }
     private void drawSquare(PrintStream out, Color squareColor, Color pieceColor, Character c) {
         if (squareColor == Color.WHITE){
@@ -475,7 +457,6 @@ public class Client implements MessageHandler.Whole<String> {
             out.print("\u2005\u2005" + c + "\u2005\u2005");
         }
     }
-
     @Override
     public void onMessage(String s) {
         ServerMessage msg = new Gson().fromJson(s, ServerMessage.class);
@@ -486,9 +467,7 @@ public class Client implements MessageHandler.Whole<String> {
             }
             case LOAD_GAME: {
                 LoadGame loadGame = new Gson().fromJson(s, LoadGame.class);
-                if (highlight){
-                    highlights = loadGame.getGame().game().validMoves(highlightSpot);
-                }
+                if (highlight){highlights = loadGame.getGame().game().validMoves(highlightSpot);}
                 printGame(loadGame);
                 highlight = false;
                 highlightSpot = null;

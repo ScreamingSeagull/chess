@@ -218,10 +218,19 @@ public class Client implements MessageHandler.Whole<String> {
     }
     private static ChessMove getChessMove(String[] params) {
         if (params.length == 4 || params.length == 5) {
-            int startRow = Integer.parseInt(params[0]);
-            int startCol = (params[1].charAt(0) - 'a' + 1);
-            int endRow = Integer.parseInt(params[2]);
-            int endCol = (params[3].charAt(0) - 'a' + 1);
+            int startRow;
+            int startCol;
+            int endRow;
+            int endCol;
+            try {
+                startRow = Integer.parseInt(params[0]);
+                startCol = (params[1].charAt(0) - 'a' + 1);
+                endRow = Integer.parseInt(params[2]);
+                endCol = (params[3].charAt(0) - 'a' + 1);
+            } catch (Exception e) {
+                System.out.println("Please input valid coordinates.");
+                return null;
+            }
             if (startRow > 8 || startRow < 1 || startCol > 8 || startCol < 1) {
                 System.out.println("Invalid starting position.");
                 return null;
@@ -301,6 +310,7 @@ public class Client implements MessageHandler.Whole<String> {
             System.out.println("move - <starting row> <starting column> <ending row> " +
                     "<ending column> <promotion type, only for end> - move piece from start to end");
             System.out.println("highlight - <row> <column> - display legal moves for a piece");
+            System.out.println("redraw - redraw the chessboard");
             System.out.println("resign - surrender the game to the opponent");
             System.out.println("leave - leave the game");
         }
@@ -316,14 +326,18 @@ public class Client implements MessageHandler.Whole<String> {
     }
     public void highlight(String... params){
         if (params.length == 2) {
-            int startRow = Integer.parseInt(params[0]);
-            int startCol = (params[1].charAt(0) - 'a' + 1);
-            if (startRow > 8 || startRow < 1 || startCol > 8 || startCol < 1) {
-                System.out.println("Invalid starting position.");
+            try {
+                int startRow = Integer.parseInt(params[0]);
+                int startCol = (params[1].charAt(0) - 'a' + 1);
+                if (startRow > 8 || startRow < 1 || startCol > 8 || startCol < 1) {
+                    System.out.println("Invalid starting position.");
+                }
+                highlight = true;
+                highlightSpot = new ChessPosition(startRow, startCol);
+                serverFacade.boardReq(gameID);
+            } catch (Exception e) {
+                System.out.println("Please input valid coordinates");
             }
-            highlight = true;
-            highlightSpot = new ChessPosition(startRow, startCol);
-            serverFacade.boardReq(gameID);
         }
     }
     private void printHorizontalBorder(PrintStream out, boolean black) {
@@ -397,12 +411,11 @@ public class Client implements MessageHandler.Whole<String> {
         } else {
             tileCreate(out, boardRow, boardCol, game.game().getBoard());
         }
-
     }
     private void tileCreate(PrintStream out, int boardRow, int boardCol, ChessBoard chessBoard) {
         Color pieceColor = convertCol(chessBoard.getPiece(boardRow + 1, boardCol + 1));
         char piece = convert(chessBoard.getPiece(boardRow + 1, boardCol + 1));
-        if (highlight){
+        if (highlight && highlights != null){
             ChessPosition temp = new ChessPosition(boardRow, boardCol);
             Collection<ChessPosition> spotTemp = new ArrayList<>();
             for (ChessMove move : highlights){

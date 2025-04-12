@@ -67,8 +67,14 @@ public class WebSocketHandler {
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Game not found.")));
             }else{
                 lobbySetup(message.getGameID(), connection);
+                String team = "";
+                if (connection.username.equals(game.whiteUsername())){
+                    team = "white.";
+                }else if (connection.username.equals(game.blackUsername())){
+                    team = "black.";
+                } else {team = "an observer.";}
                 lobbies.get(message.getGameID()).notify(connection.username,
-                        new Notification(connection.username + " has connected."));
+                        new Notification(connection.username + " has connected as " + team));
                 connection.send(new Gson().toJson(new LoadGame(game)));
             }
         } catch (DataAccessException | IOException e) {
@@ -78,11 +84,14 @@ public class WebSocketHandler {
     private void checkStatus(GameData gameData) throws IOException {
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)){
             lobbies.get(gameData.gameID()).endGame();
-            lobbies.get(gameData.gameID()).notify("", new Notification("White has won."));
-        }
-        if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
+            lobbies.get(gameData.gameID()).notify("", new Notification(gameData.blackUsername() + " is in checkmate."));
+        }else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
             lobbies.get(gameData.gameID()).endGame();
-            lobbies.get(gameData.gameID()).notify("", new Notification("Black has won."));
+            lobbies.get(gameData.gameID()).notify("", new Notification(gameData.whiteUsername() + " is in checkmate."));
+        }else if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)){
+            lobbies.get(gameData.gameID()).notify("", new Notification(gameData.whiteUsername() + " is in check."));
+        }else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)){
+            lobbies.get(gameData.gameID()).notify("", new Notification(gameData.blackUsername() + " is in check."));
         }
     }
     private void getBoard(Connection connection, BoardReq message) throws WebSocketException {

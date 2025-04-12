@@ -86,7 +86,7 @@ public class WebSocketHandler {
     }
     private void makeMove(Connection connection, MakeMove message) throws WebSocketException, IOException {
         try {
-            GameData game = gameDAO.getGame(message.getGameID()+1);
+            GameData game = gameDAO.getGame(message.getGameID());
             ChessPiece piece = game.game().getBoard().getPiece(message.getMove().getStartPosition());
             if (lobbies.get(message.getGameID()).isEnded()){
                 connection.send(new Gson().toJson(new ErrorMessage("Error: Game is over.")));
